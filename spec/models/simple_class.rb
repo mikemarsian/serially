@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-class Invoice
+class SimpleClass
   include Serially
 
   serially do

@@ -2,11 +2,6 @@ module Serially
 
     def self.included(receiver)
       receiver.extend Serially::ClassMethods
-
-      # do not overwrite existing serially tasks, which could have been created by
-      # inheritance, see class method inherited
-      Serially::TaskManager[receiver] ||= Serially::TaskManager.new
-
       super
     end
 
@@ -20,13 +15,21 @@ module Serially
       def serially(*args, &block)
         options = args[0] || {}
 
-        # @task_manager is a class instance variable
-        # TODO: one of these is redundant
-        @task_manager = Serially::TaskManager.new(self, options)
-        Serially::TaskManager[self] ||= @task_manager
+        # If TaskManager for current including class doesn't exist, create it
+        task_manager = Serially::TaskManager.new(self, options)
+        Serially::TaskManager[self] ||= task_manager
 
-        @task_manager.instance_eval(&block) if block # new DSL
-        @task_manager
+        # create a new base, and resolve DSL
+        @serially = Serially::Base.new(task_manager)
+        @serially.instance_eval(&block) if block
+
+        # return Serially::Base
+        @serially
       end
+    end
+
+    # this is the entry point for all instance-level access to Serially
+    def serially
+      @serially ||= Serially::InstanceBase.new(self)
     end
 end
