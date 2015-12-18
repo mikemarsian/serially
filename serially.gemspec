@@ -42,7 +42,12 @@ Example:
   require 'serially'
   class StrictlySerialJob
     include Serially
-    # To Fill
+
+    serially do
+      task :do_a
+      task :do_b
+      task :do_c
+    end
   end
 desc
 

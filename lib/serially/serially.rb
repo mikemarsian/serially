@@ -2,6 +2,8 @@ module Serially
 
     def self.included(receiver)
       receiver.extend Serially::ClassMethods
+      # remove any task_manager that might have been inherited - inclusion takes precedence
+      Serially::TaskManager[receiver] = nil
       super
     end
 

@@ -12,7 +12,7 @@ module Serially
 
     # this ensures that for item_class=Invoice, and item_id=34500, only one job will run at a time
     def self.redis_key(item_class, item_id, *args)
-      "lonely_job:serially:#{item_class}_#{item_id}"
+      "serially:#{item_class}_#{item_id}"
     end
 
     def self.perform(item_class, item_id)
