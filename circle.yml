@@ -1,0 +1,7 @@
+machine:
+  pre:
+    - rvm use ruby-1.9.3-p551
+    - gem install bundler
+database:
+  override:
+    - echo "no database setup"
