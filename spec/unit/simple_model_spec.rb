@@ -1,7 +1,7 @@
 require 'spec_helper'
 
-describe 'Simple class that includes Serially' do
-  let(:simple) { SimpleClass.new }
+describe 'Simple ActiveRecord model that includes Serially' do
+  let(:simple) { SimpleModel.create(title: 'IamSimpleModel') }
 
   it 'should contain class methods included from Serially' do
     simple.class.should respond_to(:serially)
@@ -14,18 +14,18 @@ describe 'Simple class that includes Serially' do
     end
 
     it 'should contains all the tasks' do
-      simple.serially.tasks.map(&:name).should == [:enrich, :validate, :refund, :archive]
+      simple.serially.tasks.map(&:name).should == [:model_step1, :model_step2, :model_step3]
     end
 
-    context 'instance methods' do
-      it '#serially.start! should enqueue Serially::Worker job' do
+    context '#start!' do
+      it 'should enqueue job with correct params' do
         simple.serially.start!
         resque_jobs = Resque.peek(Serially::Worker.queue, 0, 10)
+        resque_jobs.should be_present
         resque_jobs.count.should == 1
         resque_jobs.first['class'].should == Serially::Worker.to_s
-        resque_jobs.first['args'].should == [SimpleClass.to_s, simple.object_id]
+        resque_jobs.first['args'].should == [SimpleModel.to_s, simple.id]
       end
     end
   end
-
 end

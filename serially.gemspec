@@ -29,12 +29,17 @@ Gem::Specification.new do |spec|
   spec.require_paths = ["lib"]
 
   spec.add_dependency 'resque', '>= 1.2'
+  spec.add_dependency 'resque-lonely_job'
+  spec.add_dependency 'activerecord', '~> 3.2.2'
 
   spec.add_development_dependency "bundler", "~> 1.10"
   spec.add_development_dependency "rake", "~> 10.0"
   spec.add_development_dependency "rspec", '>= 3.0'
   spec.add_development_dependency "mock_redis"
   spec.add_development_dependency "pry"
+  spec.add_development_dependency "pry-debugger"
+  spec.add_development_dependency 'database_cleaner'
+  spec.add_development_dependency 'sqlite3'
 
   spec.description   = <<desc
 Allows any entity class (i.e. Post, Comment) to define tasks that will be run serially, one after another, as a continuous resque job

@@ -9,6 +9,9 @@ module Serially
     extend Resque::Plugins::LonelyJob
 
     @queue = 'serially'
+    def self.queue
+      @queue
+    end
 
     # this ensures that for item_class=Invoice, and item_id=34500, only one job will run at a time
     def self.redis_key(item_class, item_id, *args)
@@ -36,7 +39,7 @@ module Serially
       Resque.logger.info(msg)
     end
 
-    # when enqueueing lifecycle_task job, we don't specify which task it should perform, since this is decided from whithin the job
+    # when enqueuing lifecycle_task job, we don't specify which task it should perform, since this is decided from within the job
     def self.enqueue(item_class, item_id)
       Resque.enqueue(Serially::Worker, item_class, item_id)
     end

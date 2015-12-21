@@ -5,7 +5,7 @@ module Serially
 
     def initialize(task_name, klass, task_manager, options)
       @name = task_name.to_sym
-      @klass = @klass
+      @klass = klass
       @options = options
       @task_manager = task_manager
     end
@@ -14,7 +14,7 @@ module Serially
       if task.is_a? Symbol
         name == task
       else
-        name == task.name
+        name == task.name && self.klass == task.klass
       end
     end
 
