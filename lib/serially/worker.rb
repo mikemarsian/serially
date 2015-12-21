@@ -41,11 +41,11 @@ module Serially
 
     # when enqueuing lifecycle_task job, we don't specify which task it should perform, since this is decided from within the job
     def self.enqueue(item_class, item_id)
-      Resque.enqueue(Serially::Worker, item_class, item_id)
+      Resque.enqueue(Serially::Worker, item_class.to_s, item_id)
     end
 
     def self.enqueue_batch(item_class, items)
-      items.each {|item| enqueue(item_class, item.id)}
+      items.each {|item| enqueue(item_class.to_s, item.id)}
     end
   end
 end
