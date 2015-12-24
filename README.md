@@ -5,6 +5,8 @@
 Have you ever had a plain ruby class or an ActiveRecord model, that needed to define a series of background tasks, that for each instance of that class had to run serially, strictly one after another? Than Serially is for you.
 All background jobs are scheduled using resque in a queue called `serially', and Serially makes sure that for every instance of your class, only one task runs at a time. Different instances of the same class do not interfere with each other and their tasks can run in parallel.
 
+Note: this gem is in active development and currently is not intended to run in production.
+
 ## Usage
 ```ruby
 class Invoice < ActiveRecord::Base
