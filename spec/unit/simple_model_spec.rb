@@ -2,6 +2,8 @@ require 'spec_helper'
 
 describe 'Simple ActiveRecord model that includes Serially' do
   let(:simple) { SimpleModel.create(title: 'IamSimpleModel') }
+  let(:observer) { TaskRunObserver.new }
+  let(:runner) { Serially::TaskRunner.new(observer) }
 
   it 'should contain class methods included from Serially' do
     simple.class.should respond_to(:serially)
@@ -26,6 +28,20 @@ describe 'Simple ActiveRecord model that includes Serially' do
         resque_jobs.first['class'].should == Serially::Worker.to_s
         resque_jobs.first['args'].should == [SimpleModel.to_s, simple.id]
       end
+    end
+  end
+
+  context 'task runner' do
+    it 'should run all tasks till the first task that returns false' do
+      runner.run!(SimpleModel, simple.instance_id)
+      observer.status(:model_step1).should == true
+      observer.message(:model_step1).should == ''
+
+      observer.status(:model_step2).should == true
+      observer.message(:model_step2).should == 'step 2 finished ok'
+
+      observer.status(:model_step3).should == false
+      observer.message(:model_step3).should == 'step 3 failed'
     end
   end
 end

@@ -19,27 +19,7 @@ module Serially
     end
 
     def self.perform(item_class, item_id)
-      item_class = item_class.constantize if item_class.is_a?(String)
-      prev_task = nil
-      while (task = Serially::TaskRunner.get_next_task(item_class, item_id, prev_task))
-        # if task.async?
-        #   started_async_task = SerialTasksManager.begin_task(task)
-        #   # if started async task successfully, exit the loop, otherwise go to next task
-        #   break if started_async_task
-        # else
-        #started_async_task = false
-        Serially::TaskRunner.perform_task(task)
-        prev_task = task
-      end
-      # if started_async_task
-      #   msg = "SerialTasksManager: started async task for #{item_class}/#{item_id}. Worker is exiting..."
-      # else
-      #   msg = "SerialTasksManager: no available tasks found for #{item_class}/#{item_id}. Worker is exiting..."
-      # end
-
-      # If we are here, it means that no more tasks were found
-      msg = "Serially: no available tasks found for #{item_class}/#{item_id}. Serially::Worker is exiting..."
-      Resque.logger.info(msg)
+      TaskRunner.new.run!(item_class, item_id)
     end
 
     # when enqueuing lifecycle_task job, we don't specify which task it should perform, since this is decided from within the job

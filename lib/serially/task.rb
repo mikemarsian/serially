@@ -34,7 +34,7 @@ module Serially
     # <i>args</i> - arguments needed to create an instance of your class. If you don't provide custom implementation for create_instance,
     # pass instance_id or hash of arguments,
     def run!(*args)
-      instance = @klass.send(:create_instance, *args)
+      instance = args[0].blank? ? instance = @klass.send(:create_instance) : @klass.send(:create_instance, *args)
       if instance
         if !@run_block && !instance.respond_to?(@name)
           raise Serially::ConfigurationError.new("Serially task #{@name} in class #{@klass} doesn't have an implementation method or a block to run")
