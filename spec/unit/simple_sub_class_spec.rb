@@ -5,7 +5,7 @@ describe 'Simple sub-class' do
 
   context 'instance' do
     it 'should contain only tasks of his parent' do
-      sub.serially.tasks.map(&:name).should == [:enrich, :validate, :refund, :archive]
+      sub.serially.tasks.keys.should == [:enrich, :validate, :refund, :archive, :complete]
     end
   end
 end

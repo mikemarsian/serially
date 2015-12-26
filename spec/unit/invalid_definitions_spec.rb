@@ -52,7 +52,7 @@ describe 'Invalid definitions' do
             task :do_this
           end
         end
-        WithoutMethod.new.serially.tasks.first.run!
+        WithoutMethod.new.serially.tasks[:do_this].run!
       }.should raise_error(Serially::ConfigurationError)
     end
   end

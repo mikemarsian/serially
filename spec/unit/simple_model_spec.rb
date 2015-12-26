@@ -14,7 +14,7 @@ describe 'Simple ActiveRecord model that includes Serially' do
     end
 
     it 'should contains all the tasks' do
-      simple.serially.tasks.map(&:name).should == [:model_step1, :model_step2, :model_step3]
+      simple.serially.tasks.keys.should == [:model_step1, :model_step2, :model_step3]
     end
 
     context '#start!' do

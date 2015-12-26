@@ -23,7 +23,7 @@ describe 'Instance methods' do
   context '#serially' do
     context '#tasks' do
       it 'should return all the tasks' do
-        simple.serially.tasks.map(&:name).should == [:enrich, :validate, :refund, :archive, :complete]
+        simple.serially.tasks.keys.should == [:enrich, :validate, :refund, :archive, :complete]
       end
     end
 
