@@ -41,7 +41,7 @@ describe 'Invalid definitions' do
             task :do_this
           end
         end
-      }.should_not raise_error(Serially::ConfigurationError)
+      }.should_not raise_error
     end
     it 'should raise ConfigurationError when task runs' do
       lambda {
