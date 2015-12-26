@@ -1,4 +1,4 @@
-require_relative 'spec/active_record_helper'
+require './spec/active_record_helper'
 
 class SimpleClass
       include Serially

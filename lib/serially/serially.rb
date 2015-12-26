@@ -23,15 +23,41 @@ module Serially
 
         # create a new base, and resolve DSL
         @serially = Serially::Base.new(task_manager)
-        @serially.instance_eval(&block) if block
+        if block
+          @serially.instance_eval(&block)
+        else
+          raise Serially::ConfigurationError.new("Serially is defined without a block of tasks definitions in class #{self}")
+        end
 
         # return Serially::Base
         @serially
+      end
+
+      # override this to provide a custom way of creating instances of your class
+      def create_instance(*args)
+        if self < ActiveRecord::Base
+          if args.count == 1
+            args[0].is_a?(Fixnum) ? self.where(id: args[0]).first : self.where(args[0]).first
+          else
+            raise Serially::ArgumentError.new("Serially: default implementation of ::create_instance expects to receive either id or hash")
+          end
+        else
+          begin
+            args.blank? ? new : new(*args)
+          rescue StandardError => exc
+            raise Serially::ArgumentError.new("Serially: default implementation of ::create_instance failed to create object with provided arguments.")
+          end
+        end
       end
     end
 
     # this is the entry point for all instance-level access to Serially
     def serially
       @serially ||= Serially::InstanceBase.new(self)
+    end
+
+    # override this to provide a custom way of fetching id of your class' instance
+    def instance_id
+      self.respond_to?(:id) ? self.id : self.object_id
     end
 end

@@ -5,8 +5,8 @@ module Serially
     end
 
     # DSL
-    def task(name, options = {})
-      @task_manager.add_task(name, options)
+    def task(name, task_options = {}, &block)
+      @task_manager.add_task(name, task_options, &block)
     end
   end
 end
