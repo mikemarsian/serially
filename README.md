@@ -115,7 +115,8 @@ end
 my = MyClass.new(some_key: "IamMe")
 my.serially.start!   # Serially::Worker is enqueued in resque queue
 
-# resque picks up the job, creates an instance of your class using self.instance_args your provided, and starts executing tasks.
+# resque picks up the job, creates an instance of your class using self.instance_args 
+# your provided, and starts executing your tasks
 ```
 
 Here's the resulting resque log:
