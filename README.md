@@ -4,9 +4,9 @@
 [![Code Climate](https://codeclimate.com/github/mikemarsian/serially/badges/gpa.svg)](https://codeclimate.com/github/mikemarsian/serially)
 
 Have you ever had a class that required a series of background tasks to run serially, strictly one after another? Than Serially is for you.
-All background jobs are scheduled using resque in a queue called `serially', and Serially makes sure that for every instance of your class, only one task runs at a time.
+All background jobs are scheduled using resque in a queue called `serially`, and Serially makes sure that for every instance of your class, only one task runs at a time.
 Different instances of the same class do not interfere with each other and their tasks can run in parallel.
-Serially works for both plain ruby classes and ActiveRecord models. In case of the latter, all task runs results for all classes are recorded in a `serially_tasks` table which you can interrogate pragmatically.
+Serially works for both plain ruby classes and ActiveRecord models. In case of the latter, all task runs results for all classes are recorded in `serially_tasks` table which you can interrogate pragmatically.
 
 
 Note: this gem is in active development and currently is not intended to run in production.
@@ -54,7 +54,7 @@ Verifying invoice 15
 Refunding invoice 15
 ```
 
-In addition to instance methods, you can pass blocks to task definitions as callbacks, and you can mix them in your class definition:
+In addition to instance methods, you can pass blocks as callbacks to your class, and you can mix both syntaxes in your class:
 
 ```ruby
 class Invoice < ActiveRecord::Base
@@ -116,17 +116,18 @@ my = MyClass.new(some_key: "IamMe")
 my.serially.start!   # Serially::Worker is enqueued in resque queue
 
 # resque picks up the job, creates an instance of your class using self.instance_args your provided, and starts executing tasks.
-# Here's the resque log:
+
+Here's the resulting resque log may look something like this:
 ```
 Doing this for instance with some_key=IamMe
 Doing this for instance with some_key=IamMe
 ```
 
 ### ActiveRecord Model
-TODO: add
+#TODO: add
 
 ## Termination
-TODO: add
+#TODO: add
 
 ## Installation
 
