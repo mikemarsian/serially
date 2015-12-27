@@ -116,18 +116,19 @@ my = MyClass.new(some_key: "IamMe")
 my.serially.start!   # Serially::Worker is enqueued in resque queue
 
 # resque picks up the job, creates an instance of your class using self.instance_args your provided, and starts executing tasks.
+```
 
-Here's the resulting resque log may look something like this:
+Here's the resulting resque log:
 ```
 Doing this for instance with some_key=IamMe
-Doing this for instance with some_key=IamMe
+Doing that for instance with some_key=IamMe
 ```
 
 ### ActiveRecord Model
-#TODO: add
+
 
 ## Termination
-#TODO: add
+
 
 ## Installation
 
