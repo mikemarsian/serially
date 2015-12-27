@@ -3,8 +3,11 @@
 [![Build Status](https://circleci.com/gh/mikemarsian/serially.svg?&style=shield&circle-token=93a8f2925ebdd64032108118ef6e17eb3848d767)](https://circleci.com/gh/mikemarsian/serially)
 [![Code Climate](https://codeclimate.com/github/mikemarsian/serially/badges/gpa.svg)](https://codeclimate.com/github/mikemarsian/serially)
 
-Have you ever had a plain ruby class or an ActiveRecord model, that needed to define a series of background tasks, that for each instance of that class had to run serially, strictly one after another? Than Serially is for you.
-All background jobs are scheduled using resque in a queue called `serially', and Serially makes sure that for every instance of your class, only one task runs at a time. Different instances of the same class do not interfere with each other and their tasks can run in parallel.
+Have you ever had a class that required a series of background tasks to run serially, strictly one after another? Than Serially is for you.
+All background jobs are scheduled using resque in a queue called `serially', and Serially makes sure that for every instance of your class, only one task runs at a time.
+Different instances of the same class do not interfere with each other and their tasks can run in parallel.
+Serially works for both plain ruby classes and ActiveRecord models. In case of the latter, all task runs results for all classes are recorded in a `serially_tasks` table which you can interrogate pragmatically.
+
 
 Note: this gem is in active development and currently is not intended to run in production.
 
@@ -17,7 +20,6 @@ class Invoice < ActiveRecord::Base
         task :enrich
         task :verify
         task :refund
-        task :archive
      end
 
      def enrich
@@ -30,10 +32,6 @@ class Invoice < ActiveRecord::Base
 
      def refund
         puts "Refunding invoice #{self.id}"
-     end
-
-     def archive
-        puts "Archiving invoice #{self.id}"
      end
    end
 ```
@@ -54,11 +52,81 @@ Verifying invoice 16
 Refunding invoice 16
 Verifying invoice 15
 Refunding invoice 15
-Archiving invoice 15
-Archiving invoice 16
-
 ```
 
+In addition to instance methods, you can pass blocks to task definitions as callbacks, and you can mix them in your class definition:
+
+```ruby
+class Invoice < ActiveRecord::Base
+     include Serially
+
+     serially do
+        task :prepare
+        task :enrich do |instance|
+            puts "Enriching #{instance.id}"
+        end
+        task :verify do |instance|
+            puts "Verifying #{instance.id}"
+        end
+     end
+
+     def prepare
+        puts "Preparing #{self.id}"
+     end
+end
+```
+
+## Customizing Instance Creation
+Before the first task runs, an instance of your class is created, on which your task callbacks are then called. By default, instances of plain ruby classes
+are created using `new(self.instance_args)`, while instances of ActiveRecord models are loaded using `where(self.instance_args).first`.
+
+### Plain Ruby Class
+The default implementation of `instance_args` for a plain ruby class returns nil (in which case `new` is called without arguments). You can provide your own
+implementation of `instance_args`, and then it will be used when instantiating an instance:
+
+```ruby
+class MyClass
+     include Serially
+
+     attr_accessor :some_key
+     def initialize(args)
+        @some_key = args[:some_key]
+     end
+
+     def instance_args
+        {some_key: self.some_key}
+     end
+
+
+     serially do
+        task :do_this
+        task :do_that
+     end
+
+     def do_this
+        puts "Doing this for instance with some_key=#{self.some_key}"
+     end
+     def do_that
+        puts "Doing that for instance with some_key=#{self.some_key}"
+     end
+end
+
+# somewhere in your code you create an instance of your class and call #serially.start!
+my = MyClass.new(some_key: "IamMe")
+my.serially.start!   # Serially::Worker is enqueued in resque queue
+
+# resque picks up the job, creates an instance of your class using self.instance_args your provided, and starts executing tasks.
+# Here's the resque log:
+```
+Doing this for instance with some_key=IamMe
+Doing this for instance with some_key=IamMe
+```
+
+### ActiveRecord Model
+TODO: add
+
+## Termination
+TODO: add
 
 ## Installation
 
