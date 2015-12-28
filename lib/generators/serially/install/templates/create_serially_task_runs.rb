@@ -1,4 +1,4 @@
-class CreateSeriallyTasks < ActiveRecord::Migration
+class CreateSeriallyTaskRuns < ActiveRecord::Migration
   def change
     create_table :serially_task_runs do |t|
       t.string  :item_class,          null: false

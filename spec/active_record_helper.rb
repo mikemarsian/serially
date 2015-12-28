@@ -1,5 +1,5 @@
 require 'active_record'
-require_relative './../lib/generators/serially/install/templates/create_serially_tasks'
+require_relative './../lib/generators/serially/install/templates/create_serially_task_runs'
 
 # switch the active database connection to an SQLite, in-memory database
 ActiveRecord::Base.establish_connection(adapter: "sqlite3", database: ":memory:")
@@ -16,4 +16,4 @@ ActiveRecord::Schema.define(:version => 1) do
 end
 
 # install generator migration
-CreateSeriallyTasks.new.change
+CreateSeriallyTaskRuns.new.change

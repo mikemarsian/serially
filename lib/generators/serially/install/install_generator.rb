@@ -14,7 +14,7 @@ module Serially
       end
 
       def copy_migrations
-        migration_template "create_serially_task.rb", "db/migrate/create_serially_tasks.rb"
+        migration_template "create_serially_task_runs.rb", "db/migrate/create_serially_task_runs.rb"
       end
     end
   end
