@@ -5,7 +5,15 @@ class SubClassWithTasks < SimpleClass
 
   serially do
     task :zip
-    task :send
-    task :acknowledge
+    task :send do |instance|
+      false
+    end
+    task :acknowledge do |instance|
+      true
+    end
+  end
+
+  def zip
+    ["OK", "ok"]
   end
 end

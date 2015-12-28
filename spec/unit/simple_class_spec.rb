@@ -18,20 +18,35 @@ describe 'Simple class that includes Serially' do
 
   context 'task runner' do
     it 'should run all tasks till the first task that returns false' do
-      runner.run!(SimpleClass, nil)
+      result = runner.run!(SimpleClass, nil)
       observer.status(:enrich).should == true
       observer.message(:enrich).should == 'Enriched just fine'
+      observer.item_id(:enrich).should == nil
 
       observer.status(:validate).should == true
       observer.message(:validate).should == ''
 
       observer.status(:refund).should == false
       observer.message(:refund).should == ''
+
+      result.should include("Serially: task 'refund' for SimpleClass/ finished with success: false, message: ")
     end
     it 'should not run any task after the first task that returned false' do
       runner.run!(SimpleClass, nil)
       observer.status(:archive).should be_blank
       observer.status(:complete).should be_blank
+    end
+  end
+
+  context 'worker' do
+    it 'should not write anything to DB, since SimpleClassWithInstanceId is not ActiveRecord model' do
+      Serially::Worker.perform(SimpleClassWithInstanceId, 123)
+      Serially::TaskRun.count.should == 0
+    end
+
+    it 'should log message with the last task info' do
+      Resque.logger.should_receive(:info).with("Serially: task 'refund' for SimpleClassWithInstanceId/123 finished with success: false, message: ")
+      Serially::Worker.perform(SimpleClassWithInstanceId, 123)
     end
   end
 end

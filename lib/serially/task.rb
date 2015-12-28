@@ -1,11 +1,11 @@
 module Serially
   class Task
 
-    attr_accessor :name, :klass
+    attr_accessor :name, :klass, :options, :run_block
 
-    def initialize(task_name, klass, task_manager, options, &run_block)
+    def initialize(task_name, options, task_manager, &run_block)
       @name = task_name.to_sym
-      @klass = klass
+      @klass = task_manager.klass
       @options = options
       @run_block = run_block
       @task_manager = task_manager

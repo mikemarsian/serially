@@ -6,11 +6,11 @@ module Serially
 
     def initialize(task_run_observer = nil)
       add_observer(task_run_observer) if task_run_observer
-      # TODO: add_observer(Serially::TaskLog)
     end
 
-    def run!(item_class, item_id)
+    def run!(item_class, item_id = nil)
       item_class = item_class.constantize if item_class.is_a?(String)
+      last_run = []
       Serially::TaskManager[item_class].each do |task|
         # if task.async?
         #   started_async_task = SerialTasksManager.begin_task(task)
@@ -20,10 +20,11 @@ module Serially
         #started_async_task = false
 
         success, msg = task.run!(item_id)
+        last_run = [task, success, msg]
 
         # write result log to DB
         changed
-        notify_observers(task, success, msg)
+        notify_observers(task, item_id, success, msg)
         # if task didn't complete successfully, exit
         break if !success
       end
@@ -34,8 +35,10 @@ module Serially
       # end
 
       # If we are here, it means that no more tasks were found
-      msg = "Serially: no available tasks found for #{item_class}/#{item_id}. Serially::Worker is exiting..."
-      Resque.logger.info(msg)
+      success = last_run[1]
+      msg = success ? "Serially: finished all tasks for #{item_class}/#{item_id}. Serially::Worker is exiting..." :
+                      "Serially: task '#{last_run[0]}' for #{item_class}/#{item_id} finished with success: #{last_run[1]}, message: #{last_run[2]}"
+      msg
     end
   end
 end

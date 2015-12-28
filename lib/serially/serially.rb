@@ -10,7 +10,7 @@ module Serially
     module ClassMethods
       # make sure inheritance works with Serially
       def inherited(subclass)
-        Serially::TaskManager[subclass] = Serially::TaskManager[self].clone
+        Serially::TaskManager[subclass] = Serially::TaskManager[self].clone_for(subclass)
         super
       end
 
@@ -33,9 +33,13 @@ module Serially
         @serially
       end
 
+      def is_active_record?
+        self < ActiveRecord::Base
+      end
+
       # override this to provide a custom way of creating instances of your class
       def create_instance(*args)
-        if self < ActiveRecord::Base
+        if self.is_active_record?
           if args.count == 1
             args[0].is_a?(Fixnum) ? self.where(id: args[0]).first : self.where(args[0]).first
           else
@@ -45,7 +49,7 @@ module Serially
           begin
             args.blank? ? new : new(*args)
           rescue StandardError => exc
-            raise Serially::ArgumentError.new("Serially: default implementation of ::create_instance failed to create object with provided arguments.")
+            raise Serially::ArgumentError.new("Serially: since no implementation of ::create_instance is provided in #{self}, tried to call new, but failed with provided arguments: #{args}")
           end
         end
       end

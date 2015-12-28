@@ -19,16 +19,17 @@ module Serially
     end
 
     def self.perform(item_class, item_id)
-      TaskRunner.new.run!(item_class, item_id)
+      writer = TaskRunWriter.new if item_class.is_active_record?
+      result_str = TaskRunner.new(writer).run!(item_class, item_id)
+      Resque.logger.info(result_str)
     end
 
-    # when enqueuing lifecycle_task job, we don't specify which task it should perform, since this is decided from within the job
     def self.enqueue(item_class, item_id)
       Resque.enqueue(Serially::Worker, item_class.to_s, item_id)
     end
 
     def self.enqueue_batch(item_class, items)
-      items.each {|item| enqueue(item_class.to_s, item.id)}
+      items.each {|item| enqueue(item_class.to_s, item.instance_id)}
     end
   end
 end

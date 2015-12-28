@@ -33,7 +33,7 @@ describe 'Simple ActiveRecord model that includes Serially' do
 
   context 'task runner' do
     it 'should run all tasks till the first task that returns false' do
-      runner.run!(SimpleModel, simple.instance_id)
+      result = runner.run!(SimpleModel, simple.instance_id)
       observer.status(:model_step1).should == true
       observer.message(:model_step1).should == ''
 
@@ -42,6 +42,62 @@ describe 'Simple ActiveRecord model that includes Serially' do
 
       observer.status(:model_step3).should == false
       observer.message(:model_step3).should == 'step 3 failed'
+
+      result.should include("Serially: task 'model_step3' for SimpleModel/#{simple.instance_id} finished with success: false, message: step 3 failed")
     end
+  end
+
+  context 'worker' do
+    before(:each) do
+      Serially::TaskRun.delete_all
+    end
+
+    context 'valid params' do
+      it 'should write all finished task runs to DB' do
+        item = SimpleModel.create(title: 'IamItem')
+        Serially::Worker.perform(SimpleModel, item.instance_id)
+        Serially::TaskRun.count.should == 3
+
+        step1 = Serially::TaskRun.where(task_name: 'model_step1').first
+        step1.should be_finished_ok
+        step1.finished_at.should_not be_blank
+        step1.result_message.should == ''
+
+        step2 = Serially::TaskRun.where(task_name: 'model_step2').first
+        step2.should be_finished_ok
+        step2.finished_at.should_not be_blank
+        step2.finished_at.should >= step1.finished_at
+        step2.result_message.should == 'step 2 finished ok'
+
+        step3 = Serially::TaskRun.where(task_name: 'model_step3').first
+        step3.should be_finished_error
+        step3.finished_at.should_not be_blank
+        step3.finished_at.should >= step2.finished_at
+        step3.result_message.should == 'step 3 failed'
+      end
+    end
+
+    context 'invalid params' do
+      context 'when instance_id is invalid' do
+        let(:invalid_id) { 888 }
+        it 'should not write to db' do
+          Serially::Worker.perform(SimpleModel, invalid_id)
+
+          # since instance can't be created, only first task_run should be written to DB
+          Serially::TaskRun.count.should == 1
+          Serially::TaskRun.first.should be_finished_error
+          Serially::TaskRun.first.finished_at.should_not be_blank
+          Serially::TaskRun.first.result_message.should == "Serially: instance couldn't be created, task 'model_step1'' not started"
+        end
+
+        it 'should return correct log message' do
+          result_msg = ''
+          Resque.logger.should_receive(:info) { |msg| result_msg = msg}
+          Serially::Worker.perform(SimpleModel, invalid_id)
+          result_msg.should == "Serially: task 'model_step1' for SimpleModel/#{invalid_id} finished with success: false, message: Serially: instance couldn't be created, task 'model_step1'' not started"
+        end
+      end
+    end
+
   end
 end

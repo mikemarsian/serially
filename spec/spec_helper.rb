@@ -14,6 +14,9 @@ RSpec.configure do |config|
     Resque.redis = MockRedis.new
   end
 
+  config.filter_run :focus
+  config.run_all_when_everything_filtered = true
+
   # clean Resque before every top-level group
   config.before(:all) do
     Resque.redis.flushdb

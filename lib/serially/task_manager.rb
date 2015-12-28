@@ -10,7 +10,7 @@ module Serially
       (@task_managers ||= {})[klass.to_s] = task_manager
     end
 
-    attr_accessor :tasks
+    attr_accessor :tasks, :options, :klass
 
     def initialize(klass, options = {})
       @klass = klass
@@ -19,11 +19,17 @@ module Serially
       @tasks = {}
     end
 
+    def clone_for(new_klass)
+      new_mgr = TaskManager.new(new_klass, self.options)
+      self.each { |task| new_mgr.add_task(task.name, task.options, &task.run_block) }
+      new_mgr
+    end
 
-    def add_task(task_name, task_options,  &block)
+
+    def add_task(task_name, task_options, &block)
       raise Serially::ConfigurationError.new("Task #{task_name} is already defined in class #{@klass}") if @tasks.include?(task_name)
       raise Serially::ConfigurationError.new("Task name #{task_name} defined in class #{@klass} is not a symbol") if !task_name.is_a?(Symbol)
-      @tasks[task_name] = Serially::Task.new(task_name, @klass, self, task_options, &block)
+      @tasks[task_name] = Serially::Task.new(task_name, task_options, self, &block)
     end
 
     # Allow iterating over tasks

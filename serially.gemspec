@@ -30,11 +30,12 @@ Gem::Specification.new do |spec|
 
   spec.add_dependency 'resque', '>= 1.2'
   spec.add_dependency 'resque-lonely_job'
-  spec.add_dependency 'activerecord', '~> 3.2.2'
+  spec.add_dependency 'activerecord', '~> 4.2.5'
 
   spec.add_development_dependency "bundler", "~> 1.10"
   spec.add_development_dependency "rake", "~> 10.0"
   spec.add_development_dependency "rspec", '>= 3.0'
+  spec.add_development_dependency "resque_spec"
   spec.add_development_dependency "rspec_junit_formatter", '0.2.2'
   spec.add_development_dependency "mock_redis"
   spec.add_development_dependency "pry"
