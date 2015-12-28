@@ -11,6 +11,29 @@ Serially works for both plain ruby classes and ActiveRecord models. In case of t
 
 Note: this gem is in active development and currently is not intended to run in production.
 
+## Installation
+
+Add this line to your application's Gemfile:
+
+```ruby
+gem 'serially'
+```
+
+And then execute:
+
+    $ bundle
+
+Or install it yourself as:
+
+    $ gem install serially
+
+## Optional ActiveRecord Setup
+
+If you use ActiveRecord, you can generate a migration that creates `serially_task_runs` table, which would be used to write the results of all your task runs.
+
+    $ rails generate serially:install
+    $ rake db:migrate
+
 ## Usage
 ```ruby
 class Invoice < ActiveRecord::Base
@@ -129,23 +152,6 @@ Doing that for instance with some_key=IamMe
 
 
 ## Termination
-
-
-## Installation
-
-Add this line to your application's Gemfile:
-
-```ruby
-gem 'serially'
-```
-
-And then execute:
-
-    $ bundle
-
-Or install it yourself as:
-
-    $ gem install serially
 
 
 ## Development
