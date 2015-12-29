@@ -40,13 +40,8 @@ describe 'Simple class that includes Serially' do
 
   context 'worker' do
     it 'should not write anything to DB, since SimpleClassWithInstanceId is not ActiveRecord model' do
-      Serially::Worker.perform(SimpleClassWithInstanceId, 123)
+      Serially::Worker.perform(SimpleClassWithInstanceId.to_s, 123)
       Serially::TaskRun.count.should == 0
-    end
-
-    it 'should log message with the last task info' do
-      Resque.logger.should_receive(:info).with("Serially: task 'refund' for SimpleClassWithInstanceId/123 finished with success: false, message: ")
-      Serially::Worker.perform(SimpleClassWithInstanceId, 123)
     end
   end
 end

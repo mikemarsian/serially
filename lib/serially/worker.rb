@@ -19,6 +19,8 @@ module Serially
     end
 
     def self.perform(item_class, item_id)
+      Resque.logger.info("Serially: starting running tasks for #{item_class}/#{item_id}...")
+      item_class = item_class.constantize if item_class.is_a?(String)
       writer = TaskRunWriter.new if item_class.is_active_record?
       result_str = TaskRunner.new(writer).run!(item_class, item_id)
       Resque.logger.info(result_str)

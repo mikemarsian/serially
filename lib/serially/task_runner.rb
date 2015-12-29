@@ -9,7 +9,6 @@ module Serially
     end
 
     def run!(item_class, item_id = nil)
-      item_class = item_class.constantize if item_class.is_a?(String)
       last_run = []
       Serially::TaskManager[item_class].each do |task|
         # if task.async?

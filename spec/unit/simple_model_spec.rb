@@ -81,20 +81,13 @@ describe 'Simple ActiveRecord model that includes Serially' do
       context 'when instance_id is invalid' do
         let(:invalid_id) { 888 }
         it 'should not write to db' do
-          Serially::Worker.perform(SimpleModel, invalid_id)
+          Serially::Worker.perform(SimpleModel.to_s, invalid_id)
 
           # since instance can't be created, only first task_run should be written to DB
           Serially::TaskRun.count.should == 1
           Serially::TaskRun.first.should be_finished_error
           Serially::TaskRun.first.finished_at.should_not be_blank
           Serially::TaskRun.first.result_message.should == "Serially: instance couldn't be created, task 'model_step1'' not started"
-        end
-
-        it 'should return correct log message' do
-          result_msg = ''
-          Resque.logger.should_receive(:info) { |msg| result_msg = msg}
-          Serially::Worker.perform(SimpleModel, invalid_id)
-          result_msg.should == "Serially: task 'model_step1' for SimpleModel/#{invalid_id} finished with success: false, message: Serially: instance couldn't be created, task 'model_step1'' not started"
         end
       end
     end
