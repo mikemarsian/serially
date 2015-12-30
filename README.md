@@ -6,8 +6,9 @@
 Have you ever had a class that required a series of background tasks to run serially, strictly one after another? Than Serially is for you.
 All background jobs are scheduled using resque in a queue called `serially`, and Serially makes sure that for every instance of your class, only one task runs at a time.
 Different instances of the same class do not interfere with each other and their tasks can run in parallel.
-Serially works for both plain ruby classes and ActiveRecord models. In case of the latter, all task runs results for all classes are recorded in `serially_tasks` table which you can interrogate pragmatically.
+Serially works for both plain ruby classes and ActiveRecord models. In case of the latter, all task runs results are written to `serially_tasks` table which you can interrogate pragmatically using `Serially::TaskRun` model.
 
+See [this rails demo app][1] that showcases how Serially gem can be used.
 
 Note: this gem is in active development and currently is not intended to run in production.
 
@@ -36,65 +37,100 @@ If you use ActiveRecord, you can generate a migration that creates `serially_tas
 
 ## Usage
 ```ruby
-class Invoice < ActiveRecord::Base
+class Post < ActiveRecord::Base
      include Serially
 
      serially do
-        task :enrich
-        task :verify
-        task :refund
+        task :draft
+        task :review
+        task :publish
+        task :promote
      end
 
-     def enrich
-        puts "Enriching invoice #{self.id}"
+     def draft
+        puts "Post #{self.id} drafted"
+        true
      end
 
-     def verify
-        puts "Verifying invoice #{self.id}"
+     def review
+        puts "Post #{self.id} reviewed by staff"
+        [true, 'reviewed by staff']
      end
 
-     def refund
-        puts "Refunding invoice #{self.id}"
+     def publish
+        puts "Post #{self.id} not published - bibliography is missing"
+        [false, 'bibliography is missing']
+     end
+
+     def promote
+        puts "Post #{self.id} promoted"
+        true
      end
    end
 ```
 
-After creating an instance of Invoice, you can run `invoice.serially.start!` to schedule your tasks to run serially. They will run one after the other in the scope of a single resque `Serially::Worker` job.
+After creating a Post, you can run `post.serially.start!` to schedule your Post tasks to run serially. They will run one after the other in the scope of the same `Serially::Worker` job.
 An example run:
 ```ruby
-invoice1 = Invoice.create(country: 'FR', amount: '100') #=> <Invoice id: 15, country: 'FR', amount: 100>
-invoice2 = Invoice.create(country: 'GB', amount: 150)   #=> <Invoice id: 16, country: 'GB', amount: 150>
-invoice1.serially.start!
-invoice2.serially.start!
+post1 = Post.create(title: 'Critique of Pure Reason', author: 'Immanuel Kant') #=> <Post id: 1, title: 'Critique of Pure Reason'...>
+post2 = Post.create(title: 'The Social Contract', author: 'Jean-Jacques Rousseau') #=> <Post id: 2, title: 'The Social Contract'...>
+post1.serially.start!
+post2.serially.start!
 ```
 The resulting resque log may look something like this:
 ```
-Enriching invoice 15
-Enriching invoice 16
-Verifying invoice 16
-Refunding invoice 16
-Verifying invoice 15
-Refunding invoice 15
+Post 1 drafted
+Post 1 reviewed by staff
+Post 2 drafted
+Post 1 not published - bibliography is missing
+Post 2 reviewed by staff
+Post 2 not published - bibliography is missing
 ```
 
-In addition to instance methods, you can pass blocks as callbacks to your class, and you can mix both syntaxes in your class:
+### Task Return Values
+
+* A task should at minimum return a boolean value, signifying whether that task finished successfully or not
+* A task can also return a string with details of the task completion
+* If a task returns _false_, the execution stops and the next tasks in the chain won't be performed for current instance
+
+### Inspecting Task Runs
+
+You can inspect task runs results using the provided `Serially::TaskRun` model and its associated `serially_task_runs` table.
+Running `Serially::TaskRun.all` for the above example, will show something like this:
+```
++----+------------+---------+-----------+----------------+----------------------+---------------------+
+| id | item_class | item_id | task_name | status         | result_message       | finished_at         |
++----+------------+---------+-----------+----------------+----------------------+---------------------+
+| 1  | Post       | 1       | draft     | finished_ok    |                      | 2015-12-31 09:17:17 |
+| 2  | Post       | 1       | review    | finished_ok    | reviewed by staff    | 2015-12-31 09:17:17 |
+| 3  | Post       | 2       | draft     | finished_ok    |                      | 2015-12-31 09:17:17 |
+| 4  | Post       | 1       | publish   | finished_error | bibliography missing | 2015-12-31 09:17:17 |
+| 5  | Post       | 2       | review    | finished_ok    |                      | 2015-12-31 09:17:17 |
+| 6  | Post       | 2       | publish   | finished_error | bibliography missing | 2015-12-31 09:17:17 |
++----+------------+---------+-----------+----------------+----------------------+---------------------+
+```
+Notice that the _promote_ task didn't run at all, since the _publish_ task that ran before it returned _false_ for both posts.
+
+
+### Blocks
+In addition to instance methods, you can pass a block as a task callback, and you can mix both syntaxes in your class:
 
 ```ruby
-class Invoice < ActiveRecord::Base
+class Post < ActiveRecord::Base
      include Serially
 
      serially do
-        task :prepare
-        task :enrich do |instance|
-            puts "Enriching #{instance.id}"
+        task :draft
+        task :review do |post|
+            puts "Reviewing #{post.id}"
         end
-        task :verify do |instance|
-            puts "Verifying #{instance.id}"
+        task :publish do |post|
+            puts "Publishing #{post.id}"
         end
      end
 
-     def prepare
-        puts "Preparing #{self.id}"
+     def draft
+        puts "Drafting #{self.id}"
      end
 end
 ```
@@ -169,3 +205,4 @@ Bug reports and pull requests are welcome on GitHub at https://github.com/mikema
 
 The gem is available as open source under the terms of the [MIT License](http://opensource.org/licenses/MIT).
 
+[1]: https://github.com/mikemarsian/serially-demo
