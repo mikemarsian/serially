@@ -135,59 +135,55 @@ class Post < ActiveRecord::Base
 end
 ```
 
-## Customizing Instance Creation
-Before the first task runs, an instance of your class is created, on which your task callbacks are then called. By default, instances of plain ruby classes
-are created using `new(self.instance_args)`, while instances of ActiveRecord models are loaded using `where(self.instance_args).first`.
-
-### Plain Ruby Class
-The default implementation of `instance_args` for a plain ruby class returns nil (in which case `new` is called without arguments). You can provide your own
-implementation of `instance_args`, and then it will be used when instantiating an instance:
+## Customize Plain Ruby Class Instantiation
+Before the first task runs, Serially creates an instance of your class, on which your task callbacks are then called. By default, instances of plain ruby classes
+are created using simple `new`. If your class has a custom `initialize` method that you want to be called when creating instance of your class, it's easy to achieve. All you need to do is to implement
+`instance_id` method that can return any number of arguments, which will be passed as-is to 'initialize`.
 
 ```ruby
-class MyClass
+class Post
      include Serially
 
-     attr_accessor :some_key
-     def initialize(args)
-        @some_key = args[:some_key]
+     attr_accessor :title
+
+     def initialize(title)
+        @title = title
      end
 
-     def instance_args
-        {some_key: self.some_key}
+     def instance_id
+        @title
      end
 
 
      serially do
-        task :do_this
-        task :do_that
-     end
-
-     def do_this
-        puts "Doing this for instance with some_key=#{self.some_key}"
-     end
-     def do_that
-        puts "Doing that for instance with some_key=#{self.some_key}"
+        # ...
      end
 end
 
-# somewhere in your code you create an instance of your class and call #serially.start!
-my = MyClass.new(some_key: "IamMe")
-my.serially.start!   # Serially::Worker is enqueued in resque queue
+class Post
+     include Serially
 
-# resque picks up the job, creates an instance of your class using self.instance_args 
-# your provided, and starts executing your tasks
+     attr_accessor :title
+     attr_accessor :author
+
+     def initialize(title, author)
+        @title = title
+        @author = author
+     end
+
+     def instance_id
+        [@title, @author]
+     end
+
+
+     serially do
+        # ...
+     end
+end
 ```
 
-Here's the resulting resque log:
-```
-Doing this for instance with some_key=IamMe
-Doing that for instance with some_key=IamMe
-```
-
-### ActiveRecord Model
-
-
-## Termination
+### ActiveRecord Model Instantiation
+For ActiveRecord objects, `instance_id` will return the DB id as expected, and overwriting this method isn't recommended.
 
 
 ## Development

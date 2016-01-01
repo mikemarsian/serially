@@ -38,10 +38,4 @@ describe 'Simple class that includes Serially' do
     end
   end
 
-  context 'worker' do
-    it 'should not write anything to DB, since SimpleClassWithInstanceId is not ActiveRecord model' do
-      Serially::Worker.perform(SimpleClassWithInstanceId.to_s, 123)
-      Serially::TaskRun.count.should == 0
-    end
-  end
 end

@@ -39,6 +39,7 @@ module Serially
 
       # override this to provide a custom way of creating instances of your class
       def create_instance(*args)
+        args = args.flatten
         if self.is_active_record?
           if args.count == 1
             args[0].is_a?(Fixnum) ? self.where(id: args[0]).first : self.where(args[0]).first

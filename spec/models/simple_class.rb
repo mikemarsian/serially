@@ -43,17 +43,6 @@ class SimpleClass
 
 end
 
-class SimpleClassWithInstanceId < SimpleClass
-  attr_accessor :simple_key
-  def initialize(key = nil)
-    @simple_key = key
-  end
-
-  def instance_id
-    @simple_key
-  end
-end
-
 class EasyClass
   include Serially
 
