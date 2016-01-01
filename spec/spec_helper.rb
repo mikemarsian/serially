@@ -2,17 +2,12 @@ require 'rubygems'
 require 'bundler/setup'
 require 'rspec'
 require 'resque'
-require 'mock_redis'
 require 'pry'
 require 'database_cleaner'
 require 'serially'
-#require 'resque-lonely_job'
-#require 'timecop'
+
 
 RSpec.configure do |config|
-  config.before(:suite) do
-    Resque.redis = MockRedis.new
-  end
 
   config.filter_run :focus
   config.run_all_when_everything_filtered = true
