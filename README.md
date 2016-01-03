@@ -93,10 +93,18 @@ Post 2 not published - bibliography is missing
 * A task can also return a string with details of the task completion
 * If a task returns _false_, the execution stops and the next tasks in the chain won't be performed for current instance
 
-### Inspecting Task Runs
-
-You can inspect task runs results using the provided `Serially::TaskRun` model and its associated `serially_task_runs` table.
-Running `Serially::TaskRun.all` for the above example, will show something like this:
+### Task Runs
+The easiest way to get the task run results, is using `serially.task_runs` instance method (which is supported for ActiveRecord models only):
+```ruby
+post1.serially.task_runs # => returns ActiveRecord::Relation of all task runs for post1, ordered by their defined order of running
+post1.serially.task_runs.finished # => returns Relation of all tasks runs that finished (successfully or not) for post1
+post1.serially.task_runs.finished_ok # => returns Relation of all tasks runs that finished successfully for post1
+post1.serially.task_runs.finished_error # => returns Relation of all tasks runs that finished with error for post1
+post1.serially.task_runs.finished.last.task_name # => returns the name of the last finished task for post1
+post1.serially.task_runs.count # => all the usual ActiveRecord queries can be used
+```
+You can also interrogate task runs results using the `Serially::TaskRun` model directly. Calling `Serially::TaskRun.all`
+for the previous task runs example, will show something like this:
 ```
 +----+------------+---------+-----------+----------------+----------------------+---------------------+
 | id | item_class | item_id | task_name | status         | result_message       | finished_at         |
