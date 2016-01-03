@@ -35,7 +35,7 @@ module Serially
 
       # If we are here, it means that no more tasks were found
       success = last_run[1]
-      msg = success ? "Serially: finished all tasks for #{item_class}/#{item_id}. Serially::Worker is exiting..." :
+      msg = success ? "Serially: finished all tasks for #{item_class}/#{item_id}. Serially::Job is stopping..." :
                       "Serially: task '#{last_run[0]}' for #{item_class}/#{item_id} finished with success: #{last_run[1]}, message: #{last_run[2]}"
       msg
     end

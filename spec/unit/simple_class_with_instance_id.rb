@@ -7,18 +7,18 @@ describe 'Simple Class with instance_id' do
 
   describe 'SimpleInstanceId' do
     it 'start! should queue job with the right instance_id params' do
-      Resque.should_receive(:enqueue).with(Serially::Worker, SimpleInstanceId.to_s, 'IamKey')
+      Resque.should_receive(:enqueue).with(Serially::Job, SimpleInstanceId.to_s, 'IamKey')
       simple.serially.start!
     end
 
     it 'create_instance should call the right initialize' do
       SimpleInstanceId.should_receive(:new).with('IamKey')
-      Serially::Worker.perform(SimpleInstanceId, 'IamKey')
+      Serially::Job.perform(SimpleInstanceId, 'IamKey')
     end
 
     context 'worker' do
       it 'should not write anything to DB, since SimpleInstanceId is not ActiveRecord model' do
-        Serially::Worker.perform(SimpleInstanceId.to_s, 123)
+        Serially::Job.perform(SimpleInstanceId.to_s, 123)
         Serially::TaskRun.count.should == 0
       end
     end
@@ -26,18 +26,18 @@ describe 'Simple Class with instance_id' do
 
   describe 'ComplexInstanceId' do
     it 'start! should queue job with the right instance_id params' do
-      Resque.should_receive(:enqueue).with(Serially::Worker, ComplexInstanceId.to_s, ['IamKey1', 'IamKey2', 333])
+      Resque.should_receive(:enqueue).with(Serially::Job, ComplexInstanceId.to_s, ['IamKey1', 'IamKey2', 333])
       complex.serially.start!
     end
 
     it 'create_instance should call the right initialize' do
       ComplexInstanceId.should_receive(:new).with('IamKey1', 'IamKey2', 333)
-      Serially::Worker.perform(ComplexInstanceId, ['IamKey1', 'IamKey2', 333])
+      Serially::Job.perform(ComplexInstanceId, ['IamKey1', 'IamKey2', 333])
     end
 
     context 'worker' do
       it 'should not write anything to DB, since SimpleInstanceId is not ActiveRecord model' do
-        Serially::Worker.perform(ComplexInstanceId.to_s, complex_args)
+        Serially::Job.perform(ComplexInstanceId.to_s, complex_args)
         Serially::TaskRun.count.should == 0
       end
     end

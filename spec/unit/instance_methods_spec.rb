@@ -31,11 +31,11 @@ describe 'Instance methods' do
     end
 
     context '#start!' do
-      it 'should enqueue Serially::Worker job' do
+      it 'should enqueue Serially::Job' do
         simple.serially.start!
-        resque_jobs = Resque.peek(Serially::Worker.queue, 0, 10)
+        resque_jobs = Resque.peek(Serially::Job.queue, 0, 10)
         resque_jobs.count.should == 1
-        resque_jobs.first['class'].should == Serially::Worker.to_s
+        resque_jobs.first['class'].should == Serially::Job.to_s
         resque_jobs.first['args'].should == [SimpleClass.to_s, simple.object_id]
       end
 

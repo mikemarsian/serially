@@ -69,7 +69,7 @@ class Post < ActiveRecord::Base
    end
 ```
 
-After creating a Post, you can run `post.serially.start!` to schedule your Post tasks to run serially. They will run one after the other in the scope of the same `Serially::Worker` job.
+After creating a Post, you can run `post.serially.start!` to schedule your Post tasks to run serially. They will run one after the other in the scope of the same `Serially::Job`.
 An example run:
 ```ruby
 post1 = Post.create(title: 'Critique of Pure Reason', author: 'Immanuel Kant') #=> <Post id: 1, title: 'Critique of Pure Reason'...>

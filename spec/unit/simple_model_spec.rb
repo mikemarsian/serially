@@ -22,10 +22,10 @@ describe 'Simple ActiveRecord model that includes Serially' do
     context '#start!' do
       it 'should enqueue job with correct params' do
         simple.serially.start!
-        resque_jobs = Resque.peek(Serially::Worker.queue, 0, 10)
+        resque_jobs = Resque.peek(Serially::Job.queue, 0, 10)
         resque_jobs.should be_present
         resque_jobs.count.should == 1
-        resque_jobs.first['class'].should == Serially::Worker.to_s
+        resque_jobs.first['class'].should == Serially::Job.to_s
         resque_jobs.first['args'].should == [SimpleModel.to_s, simple.id]
       end
     end
@@ -55,7 +55,7 @@ describe 'Simple ActiveRecord model that includes Serially' do
     context 'valid params' do
       it 'should write all finished task runs to DB' do
         item = SimpleModel.create(title: 'IamItem')
-        Serially::Worker.perform(SimpleModel, item.instance_id)
+        Serially::Job.perform(SimpleModel, item.instance_id)
         Serially::TaskRun.count.should == 3
 
         step1 = Serially::TaskRun.where(task_name: 'model_step1').first
@@ -84,7 +84,7 @@ describe 'Simple ActiveRecord model that includes Serially' do
       context 'when instance_id is invalid' do
         let(:invalid_id) { 888 }
         it 'should not write to db' do
-          Serially::Worker.perform(SimpleModel.to_s, invalid_id)
+          Serially::Job.perform(SimpleModel.to_s, invalid_id)
 
           # since instance can't be created, only first task_run should be written to DB
           Serially::TaskRun.count.should == 1

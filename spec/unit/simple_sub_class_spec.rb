@@ -31,7 +31,7 @@ describe 'Simple sub-class' do
       Serially::TaskRun.delete_all
     end
     it 'should not write anything to DB, since SimpleSubClass is not ActiveRecord model' do
-      Serially::Worker.perform(SimpleSubClass, nil)
+      Serially::Job.perform(SimpleSubClass, nil)
       Serially::TaskRun.count.should == 0
     end
   end
