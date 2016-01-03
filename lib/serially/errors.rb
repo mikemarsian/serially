@@ -4,4 +4,6 @@ module Serially
 
   class ConfigurationError < RuntimeError; end
 
+  class NotSupportedError < RuntimeError; end
+
 end

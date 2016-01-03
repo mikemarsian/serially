@@ -14,7 +14,11 @@ module Serially
       Serially::Worker.enqueue(@instance.class, @instance.instance_id)
     end
 
-    private
+    def task_runs
+      raise NotSupportedError.new('Serially: task_runs query is supported only for ActiveRecord classes') unless @instance.class.is_active_record?
+      Serially::TaskRun.where(item_class: @instance.class.to_s, item_id: @instance.id).order('task_order ASC')
+    end
+
 
   end
 end

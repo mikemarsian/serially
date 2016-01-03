@@ -38,3 +38,17 @@ end
 
 # example model classes
 Dir[File.dirname(__FILE__) + "/models/*.rb"].sort.each { |f| require File.expand_path(f) }
+
+# **** helper methods ***
+
+def create_task_run_from_hash(args = {})
+  task_run = Serially::TaskRun.new do |t|
+    t.item_class = args[:item_class] if args[:item_class].present?
+    t.item_id = args[:item_id] if args[:item_id].present?
+    t.status = args[:status] if args[:status].present?
+    t.task_name = args[:task_name] if args[:task_name].present?
+    t.task_order = args[:task_order] if args[:task_order].present?
+  end
+  task_run.save!
+  task_run
+end

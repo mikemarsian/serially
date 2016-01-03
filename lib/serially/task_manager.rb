@@ -17,6 +17,7 @@ module Serially
       @options = options
       # Hash is ordered since Ruby 1.9
       @tasks = {}
+      @last_task_order = 0
     end
 
     def clone_for(new_klass)
@@ -29,7 +30,7 @@ module Serially
     def add_task(task_name, task_options, &block)
       raise Serially::ConfigurationError.new("Task #{task_name} is already defined in class #{@klass}") if @tasks.include?(task_name)
       raise Serially::ConfigurationError.new("Task name #{task_name} defined in class #{@klass} is not a symbol") if !task_name.is_a?(Symbol)
-      @tasks[task_name] = Serially::Task.new(task_name, task_options, self, &block)
+      @tasks[task_name] = Serially::Task.new(task_name, next_task_order!, task_options, self, &block)
     end
 
     # Allow iterating over tasks
@@ -39,6 +40,15 @@ module Serially
       @tasks.values.each do |task|
         yield task
       end
+    end
+
+    private
+
+    # returns next task order, and advances the counter
+    def next_task_order!
+      current_order = @last_task_order
+      @last_task_order += 1
+      current_order
     end
 
   end

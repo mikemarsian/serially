@@ -59,17 +59,20 @@ describe 'Simple ActiveRecord model that includes Serially' do
         Serially::TaskRun.count.should == 3
 
         step1 = Serially::TaskRun.where(task_name: 'model_step1').first
+        step1.task_order.should == 0
         step1.should be_finished_ok
         step1.finished_at.should_not be_blank
         step1.result_message.should == ''
 
         step2 = Serially::TaskRun.where(task_name: 'model_step2').first
+        step2.task_order.should == 1
         step2.should be_finished_ok
         step2.finished_at.should_not be_blank
         step2.finished_at.should >= step1.finished_at
         step2.result_message.should == 'step 2 finished ok'
 
         step3 = Serially::TaskRun.where(task_name: 'model_step3').first
+        step3.task_order.should == 2
         step3.should be_finished_error
         step3.finished_at.should_not be_blank
         step3.finished_at.should >= step2.finished_at
@@ -85,6 +88,7 @@ describe 'Simple ActiveRecord model that includes Serially' do
 
           # since instance can't be created, only first task_run should be written to DB
           Serially::TaskRun.count.should == 1
+          Serially::TaskRun.first.task_order.should == 0
           Serially::TaskRun.first.should be_finished_error
           Serially::TaskRun.first.finished_at.should_not be_blank
           Serially::TaskRun.first.result_message.should == "Serially: instance couldn't be created, task 'model_step1'' not started"

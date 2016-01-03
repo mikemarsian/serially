@@ -4,6 +4,7 @@ class CreateSeriallyTaskRuns < ActiveRecord::Migration
       t.string  :item_class,          null: false
       t.string :item_id,        null: false
       t.string :task_name,        null: false
+      t.integer :task_order,      null: false
       t.integer  :status,         default: 0
       t.datetime :finished_at
       t.text     :result_message

@@ -9,15 +9,10 @@ module Serially
     validates :item_class, :item_id, :task_name, presence: true
     validates :task_name, uniqueness: { scope: [:item_class, :item_id] }
 
-    def self.create_from_hash!(args = {})
-      task_run = TaskRun.new do |t|
-        t.item_class = args[:item_class] if args[:item_class].present?
-        t.item_id = args[:item_id] if args[:item_id].present?
-        t.status = args[:status] if args[:status].present?
-        t.task_name = args[:task_name] if args[:task_name].present?
-      end
-      task_run.save!
-      task_run
+    scope :finished, -> { where(status: finished_statuses) }
+
+    def self.finished_statuses
+      [TaskRun.statuses[:finished_ok], TaskRun.statuses[:finished_error]]
     end
 
     def finished?
@@ -31,6 +26,7 @@ module Serially
         false
       else
         saved = task_run.tap {|t|
+          t.task_order = task.task_order
           t.status = success ? TaskRun.statuses[:finished_ok] : TaskRun.statuses[:finished_error]
           t.result_message = msg
           t.finished_at = DateTime.now

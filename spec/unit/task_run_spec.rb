@@ -17,18 +17,17 @@ describe 'Serially::TaskRun' do
       task.should be_valid
     end
     it 'should fail if item_id exists already' do
-      create_args = {item_class: SimpleClass.to_s, item_id: '123', status: 1, task_name: 'validate'}
-      task1 = Serially::TaskRun.create_from_hash!(create_args)
+      create_args = {item_class: SimpleClass.to_s, item_id: '123', status: 1, task_name: 'validate', task_order: 0}
+      task1 = create_task_run_from_hash(create_args)
       task1.should be_valid
 
-      lambda { Serially::TaskRun.create_from_hash!(create_args) }.should raise_error
+      lambda { create_task_run_from_hash(create_args) }.should raise_error
 
-      task2 = Serially::TaskRun.create_from_hash!(create_args.merge({task_name: 'enrich'}))
+      task2 = create_task_run_from_hash(create_args.merge({task_name: 'enrich', task_order: 1}))
       task2.should be_valid
 
-      task3 = Serially::TaskRun.create_from_hash!(create_args.merge({item_id: 124}))
+      task3 = create_task_run_from_hash(create_args.merge({item_id: 124, task_order: 2}))
       task3.should be_valid
-
     end
   end
 end
