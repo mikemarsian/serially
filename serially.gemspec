@@ -35,9 +35,9 @@ Gem::Specification.new do |spec|
 
   spec.description   = <<desc
 Have you ever had a class that required a series of background tasks to run serially, strictly one after another? Than Serially is for you.
-All background jobs are scheduled using resque and Serially makes sure that for every instance of your class, only one task runs at a time.
-Different instances of the same class do not interfere with each other and their tasks can run in parallel.
-Serially works for both plain ruby classes and ActiveRecord models. In case of the latter, all task runs results are written to serially_tasks table which you can interrogate pragmatically using Serially::TaskRun model.
+Declare the tasks using a simple DSL in the order you want them to to run. Serially will wrap them in a single job, and schedule it using Resque
+in a queue you specify (or a default one). The next task will run only if previous one finished successfully. All task runs are written to DB and can be inspected (if
+your class is an ActiveRecord object).
 desc
 
 end
