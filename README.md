@@ -123,12 +123,12 @@ You can specify in which Resque queue the task-containing `Serially::Job` will b
 class Post
      include Serially
 
-     serially in_queue: 'posts` do
+     serially in_queue: 'posts' do
         ...
      end
 end
 ```
-Different instances of Post will all schedule their task-containing jobs in 'posts' queue, without any interference to each other.
+`Serially::Job`'s of different instances of Post will all be scheduled in 'posts' queue, without any interference to each other.
 
 ### Blocks
 In addition to instance methods, you can pass a block as a task callback, and you can mix both syntaxes in your class:
@@ -141,14 +141,17 @@ class Post < ActiveRecord::Base
         task :draft
         task :review do |post|
             puts "Reviewing #{post.id}"
+            true
         end
         task :publish do |post|
             puts "Publishing #{post.id}"
+            true
         end
      end
 
      def draft
         puts "Drafting #{self.id}"
+        [false, 'drafting failed']
      end
 end
 ```
@@ -174,11 +177,11 @@ class Post
 
 
      serially do
-        # ...
+        ...
      end
 end
 
-class Post
+class PostWithAuthor
      include Serially
 
      attr_accessor :title
@@ -195,7 +198,7 @@ class Post
 
 
      serially do
-        # ...
+        ...
      end
 end
 ```
@@ -216,6 +219,8 @@ Bug reports and pull requests are welcome on GitHub at https://github.com/mikema
 
 
 ## License
+
+Copyright (c) 2015-2016 Mike Polischuk
 
 The gem is available as open source under the terms of the [MIT License](http://opensource.org/licenses/MIT).
 
