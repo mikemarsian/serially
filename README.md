@@ -4,13 +4,11 @@
 [![Code Climate](https://codeclimate.com/github/mikemarsian/serially/badges/gpa.svg)](https://codeclimate.com/github/mikemarsian/serially)
 
 Have you ever had a class that required a series of background tasks to run serially, strictly one after another? Than Serially is for you.
-All background jobs are scheduled using resque in a queue called `serially`, and Serially makes sure that for every instance of your class, only one task runs at a time.
-Different instances of the same class do not interfere with each other and their tasks can run in parallel.
-Serially works for both plain ruby classes and ActiveRecord models. In case of the latter, all task runs results are written to `serially_tasks` table which you can interrogate pragmatically using `Serially::TaskRun` model.
+Declare the tasks using a simple DSL in the order you want them to to run. Serially will wrap them in a single job, and schedule it using Resque
+in `serially` queue (the queue is customizable). The next task will start only if previous one finished successfully. All task runs are written to DB  and can be inspected (if
+your class is an ActiveRecord object).
 
-See [this rails demo app][1] that showcases how Serially gem can be used.
-
-Note: this gem is in active development and currently is not intended to run in production.
+Check [this demo app][1] to see how Serially may be used in a Rails app.
 
 ## Installation
 
@@ -30,7 +28,7 @@ Or install it yourself as:
 
 ## Optional ActiveRecord Setup
 
-If you use ActiveRecord, you can generate a migration that creates `serially_task_runs` table, which would be used to write the results of all your task runs.
+If you use ActiveRecord, you can generate a migration that creates `serially_task_runs` table, which would be used to write the results of all task runs.
 
     $ rails generate serially:install
     $ rake db:migrate
@@ -93,17 +91,17 @@ Post 2 not published - bibliography is missing
 * A task can also return a string with details of the task completion
 * If a task returns _false_, the execution stops and the next tasks in the chain won't be performed for current instance
 
-### Task Runs
-The easiest way to get the task run results, is using `serially.task_runs` instance method (which is supported for ActiveRecord models only):
+### Inspection
+The easiest way to inspect the task run results, is using `serially.task_runs` instance method (which is supported for ActiveRecord classes only):
 ```ruby
-post1.serially.task_runs # => returns ActiveRecord::Relation of all task runs for post1, ordered by their defined order of running
+post1.serially.task_runs # => returns ActiveRecord::Relation of all task runs for post1, ordered by their order of running
 post1.serially.task_runs.finished # => returns Relation of all tasks runs that finished (successfully or not) for post1
 post1.serially.task_runs.finished_ok # => returns Relation of all tasks runs that finished successfully for post1
 post1.serially.task_runs.finished_error # => returns Relation of all tasks runs that finished with error for post1
 post1.serially.task_runs.finished.last.task_name # => returns the name of the last finished task for post1
 post1.serially.task_runs.count # => all the usual ActiveRecord queries can be used
 ```
-You can also interrogate task runs results using the `Serially::TaskRun` model directly. Calling `Serially::TaskRun.all`
+You can also inspect task runs results using the `Serially::TaskRun` model directly. Calling `Serially::TaskRun.all`
 for the previous task runs example, will show something like this:
 ```
 +----+------------+---------+-----------+----------------+----------------------+---------------------+
@@ -119,6 +117,18 @@ for the previous task runs example, will show something like this:
 ```
 Notice that the _promote_ task didn't run at all, since the _publish_ task that ran before it returned _false_ for both posts.
 
+### Configuration
+You can specify in which Resque queue the task-containing `Serially::Job` will be scheduled:
+```ruby
+class Post
+     include Serially
+
+     serially in_queue: 'posts` do
+        ...
+     end
+end
+```
+Different instances of Post will all schedule their task-containing jobs in 'posts' queue, without any interference to each other.
 
 ### Blocks
 In addition to instance methods, you can pass a block as a task callback, and you can mix both syntaxes in your class:
