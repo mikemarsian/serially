@@ -16,10 +16,12 @@ module Serially
 
       def serially(*args, &block)
         options = args[0] || {}
+        invalid_options = Serially::Options.validate(options)
+        raise Serially::ConfigurationError.new("Serially received the following invalid options: #{invalid_options}") if invalid_options.present?
 
         # If TaskManager for current including class doesn't exist, create it
-        task_manager = Serially::TaskManager.new(self, options)
-        Serially::TaskManager[self] ||= task_manager
+        Serially::TaskManager[self] ||= Serially::TaskManager.new(self, options)
+        task_manager = Serially::TaskManager[self]
 
         # create a new base, and resolve DSL
         @serially = Serially::Base.new(task_manager)
@@ -64,5 +66,29 @@ module Serially
     # override this to provide a custom way of fetching id of your class' instance
     def instance_id
       self.respond_to?(:id) ? self.id : self.object_id
+    end
+
+
+
+
+    class Options
+      ALLOWED = [:in_queue]
+
+      def self.default_queue
+        'serially'
+      end
+
+      def self.validate(options)
+        invalid_options = {}
+
+        valid_options = options.select{ |k,v| ALLOWED.include?(k) }
+        invalid_keys = options.keys.select{ |k| !ALLOWED.include?(k) }
+        empty_values = valid_options.select{ |k, v| v.blank? }.keys
+
+        invalid_options['Unrecognized Keys'] = invalid_keys if invalid_keys.present?
+        invalid_options['Empty Values'] = empty_values if empty_values.present?
+
+        invalid_options
+      end
     end
 end

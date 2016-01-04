@@ -56,4 +56,48 @@ describe 'Invalid definitions' do
       }.should raise_error(Serially::ConfigurationError)
     end
   end
+
+  context 'invalid serially options' do
+    it 'should raise ConfigurationError' do
+      lambda {
+        class InvalidSeriallyOptions
+          include Serially
+
+          serially kuku: true do
+            task :do_something do |instance|
+              true
+            end
+          end
+        end
+      }.should raise_error(Serially::ConfigurationError)
+    end
+  end
+
+  context 'empty serially options' do
+    it 'should raise ConfigurationError' do
+      lambda {
+        class InvalidSeriallyOptions
+          include Serially
+
+          serially in_queue: '' do
+            task :do_something do |instance|
+              true
+            end
+          end
+        end
+      }.should raise_error(Serially::ConfigurationError)
+
+      lambda {
+        class InvalidSeriallyOptions
+          include Serially
+
+          serially in_queue: nil do
+            task :do_something do |instance|
+              true
+            end
+          end
+        end
+      }.should raise_error(Serially::ConfigurationError)
+    end
+  end
 end

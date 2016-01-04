@@ -11,8 +11,4 @@ describe 'Serially::Job' do
       resque_jobs.first['args'].should == [SimpleModel.to_s, 12]
     end
   end
-
-  context '::enqueue_batch' do
-    it 'should enqueue_batch'
-  end
 end

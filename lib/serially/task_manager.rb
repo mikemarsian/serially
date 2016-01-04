@@ -10,7 +10,7 @@ module Serially
       (@task_managers ||= {})[klass.to_s] = task_manager
     end
 
-    attr_accessor :tasks, :options, :klass
+    attr_accessor :tasks, :options, :klass, :queue
 
     def initialize(klass, options = {})
       @klass = klass
@@ -18,6 +18,10 @@ module Serially
       # Hash is ordered since Ruby 1.9
       @tasks = {}
       @last_task_order = 0
+    end
+
+    def queue
+      @options[:in_queue]
     end
 
     def clone_for(new_klass)

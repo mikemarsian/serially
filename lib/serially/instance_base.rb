@@ -11,7 +11,7 @@ module Serially
     def_delegator :@task_manager, :tasks
 
     def start!
-      Serially::Job.enqueue(@instance.class, @instance.instance_id)
+      Serially::Job.enqueue(@instance.class, @instance.instance_id, @task_manager.queue)
     end
 
     def task_runs
