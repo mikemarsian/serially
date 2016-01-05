@@ -164,7 +164,7 @@ end
 ## Customize Plain Ruby Class Instantiation
 Before the first task runs, Serially creates an instance of your class, on which your task callbacks are then called. By default, instances of plain ruby classes
 are created using simple `new`. If your class has a custom `initialize` method that you want to be called when creating instance of your class, it's easy to achieve. All you need to do is to implement
-`instance_id` method that can return any number of arguments, which will be passed as-is to 'initialize`.
+`instance_id` method that can return any number of arguments, which will be passed as-is to your `initialize`.
 
 ```ruby
 class Post
