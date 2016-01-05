@@ -5,12 +5,12 @@
 
 Have you ever had a class that required a series of background tasks to run serially, strictly one after another? Than Serially is for you.
 Declare the tasks using a simple DSL in the order you want them to to run. Serially will wrap them in a single job, and schedule it using Resque
-in a queue you specify (or a default one). The next task will run only if previous one finished successfully. All task runs are written to DB and can be inspected (if
-your class is an ActiveRecord object).
+in a queue you specify (or a default one). The next task will run only if the previous one has finished successfully. All task run results are written to DB and can be inspected (that is if
+your class is an ActiveRecord model).
 
 Check [this demo app][1] to see how Serially may be used in a Rails app.
 
-Note: Serially is under active development. If there is anything you miss in it, please let me know!
+Note: Serially is under active development. If there is anything you miss in it, let me know!
 
 Twitter: @mikepolis     Email: mike AT polischuk DOT net
 
