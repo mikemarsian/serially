@@ -133,7 +133,7 @@ class Post
      end
 end
 ```
-`Serially::Job`'s of different instances of Post will all be scheduled in 'posts' queue, without any interference to each other.
+Jobs for different instances of Post will all be scheduled in 'posts' queue, without any interference to each other.
 
 ### Blocks
 In addition to instance methods, you can pass a block as a task callback, and you can mix both syntaxes in your class:
