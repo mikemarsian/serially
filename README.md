@@ -3,7 +3,7 @@
 [![Build Status](https://circleci.com/gh/mikemarsian/serially.svg?&style=shield&circle-token=93a8f2925ebdd64032108118ef6e17eb3848d767)](https://circleci.com/gh/mikemarsian/serially)
 [![Code Climate](https://codeclimate.com/github/mikemarsian/serially/badges/gpa.svg)](https://codeclimate.com/github/mikemarsian/serially)
 
-Have you ever had a class that required a series of background tasks to run serially, strictly one after another? Than Serially is for you.
+Have you ever had a class that required a series of background tasks to run serially, strictly one after another? Then Serially is for you.
 Declare the tasks using a simple DSL in the order you want them to to run. Serially will wrap them in a single job, and schedule it using Resque
 in a queue you specify (or a default one). The next task will run only if the previous one has finished successfully. All task run results are written to DB and can be inspected (that is if
 your class is an ActiveRecord model).
