@@ -3,14 +3,14 @@
 [![Build Status](https://circleci.com/gh/mikemarsian/serially.svg?&style=shield&circle-token=93a8f2925ebdd64032108118ef6e17eb3848d767)](https://circleci.com/gh/mikemarsian/serially)
 [![Code Climate](https://codeclimate.com/github/mikemarsian/serially/badges/gpa.svg)](https://codeclimate.com/github/mikemarsian/serially)
 
-Have you ever had a class that required a series of background tasks to run serially, strictly one after another? Than Serially is for you.
+Have you ever had a class that required a series of background tasks to run serially, strictly one after another? Then Serially is for you.
 Declare the tasks using a simple DSL in the order you want them to to run. Serially will wrap them in a single job, and schedule it using Resque
-in a queue you specify (or a default one). The next task will run only if previous one finished successfully. All task runs are written to DB and can be inspected (if
-your class is an ActiveRecord object).
+in a queue you specify (or a default one). The next task will run only if the previous one has finished successfully. All task run results are written to DB and can be inspected (that is if
+your class is an ActiveRecord model).
 
 Check [this demo app][1] to see how Serially may be used in a Rails app.
 
-Note: Serially is under active development. If there is anything you miss in it, please let me know!
+Note: Serially is under active development. If there is anything you miss in it, let me know!
 
 Twitter: @mikepolis     Email: mike AT polischuk DOT net
 
@@ -139,7 +139,7 @@ class Post
      end
 end
 ```
-`Serially::Job`'s of different instances of Post will all be scheduled in 'posts' queue, without any interference to each other.
+Jobs for different instances of Post will all be scheduled in 'posts' queue, without any interference to each other.
 
 ### Blocks
 In addition to instance methods, you can pass a block as a task callback, and you can mix both syntaxes in your class:
@@ -170,7 +170,7 @@ end
 ## Customize Plain Ruby Class Instantiation
 Before the first task runs, Serially creates an instance of your class, on which your task callbacks are then called. By default, instances of plain ruby classes
 are created using simple `new`. If your class has a custom `initialize` method that you want to be called when creating instance of your class, it's easy to achieve. All you need to do is to implement
-`instance_id` method that can return any number of arguments, which will be passed as-is to 'initialize`.
+`instance_id` method that can return any number of arguments, which will be passed as-is to your `initialize`.
 
 ```ruby
 class Post
