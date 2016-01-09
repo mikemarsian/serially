@@ -35,6 +35,13 @@ module Serially
         @serially
       end
 
+      def start_batch!(instance_ids)
+        queue = Serially::TaskManager[self].queue
+        instance_ids.each do |instance_id|
+          Serially::Job.enqueue(self, instance_id, queue)
+        end
+      end
+
       def is_active_record?
         self < ActiveRecord::Base
       end

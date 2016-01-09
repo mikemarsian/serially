@@ -70,8 +70,9 @@ class Post < ActiveRecord::Base
      end
    end
 ```
+### Start for Instance
 
-After creating a Post, you can run `post.serially.start!` to schedule your Post tasks to run serially. They will run one after the other in the scope of the same `Serially::Job`
+After creating an instance of a Post, you can run `post.serially.start!` to schedule your Post tasks to run serially. They will run one after the other in the scope of the same `Serially::Job`
 in the default `serially` queue.
 An example run:
 ```ruby
@@ -88,6 +89,11 @@ Post 2 drafted
 Post 1 not published - bibliography is missing
 Post 2 reviewed by staff
 Post 2 not published - bibliography is missing
+```
+### Start for Batch
+If you want to schedule serially tasks for multiple instances, you can do it in a single call:
+```ruby
+Post.start_batch!([post1.id, post2.id, post3.id])
 ```
 
 ### Task Return Values

@@ -55,4 +55,34 @@ describe 'Class methods' do
       end
     end
   end
+
+  context '::start_batch!' do
+    context 'for simple class' do
+      let(:ids) { %w(key1 key2 key3) }
+      it 'should be available on any class that includes Serially' do
+        SimpleClass.should respond_to(:start_batch!)
+        SimpleModel.should respond_to(:start_batch!)
+      end
+      it 'should schedule jobs as the number of ids passed' do
+        SimpleInstanceId.start_batch!(ids)
+
+        resque_jobs = Resque.peek(Serially::Job.queue, 0, 10)
+        resque_jobs.count.should == ids.count
+        resque_jobs.first['class'].should == Serially::Job.to_s
+        resque_jobs.map{|h| h['args'][1]}.should include(*ids)
+      end
+    end
+    context 'for model class' do
+      let(:ids) { [SimpleModel.create(title: 'A').id, SimpleModel.create(title: 'B').id, SimpleModel.create(title: 'C').id] }
+      before(:all) { Resque.inline = true }
+      after(:all) { Resque.inline = false }
+      it 'should create task runs as expected' do
+        SimpleModel.start_batch!(ids)
+        Serially::TaskRun.count.should == 9 # 3 instances, 3 task runs for each
+        Serially::TaskRun.finished_error.count.should == 3
+        Serially::TaskRun.finished_ok.count.should == 6
+        Serially::TaskRun.where(item_id: ids.first).count.should == 3
+      end
+    end
+  end
 end
