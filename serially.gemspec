@@ -13,6 +13,7 @@ Gem::Specification.new do |spec|
                         after another, as a single, long-running resque job}
   spec.homepage      = "http://github.com/mikemarsian/serially"
   spec.license       = "MIT"
+  spec.required_ruby_version = '>= 1.9.3'
 
   spec.files         = `git ls-files -z`.split("\x0").reject { |f| f.match(%r{^(test|spec|features)/}) }
   spec.bindir        = "bin"
