@@ -18,12 +18,12 @@ module Serially
         # else
         #started_async_task = false
 
-        success, msg = task.run!(item_id)
-        last_run = [task, success, msg]
+        success, msg, result_obj = task.run!(item_id)
+        last_run = [task, success, msg, result_obj]
 
         # write result log to DB
         changed
-        notify_observers(task, item_id, success, msg)
+        notify_observers(task, item_id, success, msg, result_obj)
         # if task didn't complete successfully, exit
         break if !success
       end

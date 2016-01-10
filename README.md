@@ -50,13 +50,15 @@ class Post < ActiveRecord::Base
      end
 
      def draft
+        # each task must return a boolean, signifying whether it has succeeded or not
         puts "Post #{self.id} drafted"
         true
      end
 
      def review
         puts "Post #{self.id} reviewed by staff"
-        [true, 'reviewed by staff']
+        # in addition to a boolean status, task can also return a string and an arbitrary object
+        [true, 'reviewed by staff', {reviewed_by: 'Mike', reviewed_at: Date.today}]
      end
 
      def publish
@@ -70,7 +72,7 @@ class Post < ActiveRecord::Base
      end
    end
 ```
-### Start for Instance
+### Schedule for a Single Instance
 
 After creating an instance of a Post, you can run `post.serially.start!` to schedule your Post tasks to run serially. They will run one after the other in the scope of the same `Serially::Job`
 in the default `serially` queue.
@@ -90,7 +92,7 @@ Post 1 not published - bibliography is missing
 Post 2 reviewed by staff
 Post 2 not published - bibliography is missing
 ```
-### Start for Batch
+### Schedule Batch
 If you want to schedule serially tasks for multiple instances, you can do it in a single call:
 ```ruby
 Post.start_batch!([post1.id, post2.id, post3.id])
@@ -99,7 +101,7 @@ Post.start_batch!([post1.id, post2.id, post3.id])
 ### Task Return Values
 
 * A task should at minimum return a boolean value, signifying whether that task finished successfully or not
-* A task can also return a string with details of the task completion
+* A task can also return a string with details of the task completion and an arbitrary object
 * If a task returns _false_, the execution stops and the next tasks in the chain won't be performed for current instance
 
 ### Inspection

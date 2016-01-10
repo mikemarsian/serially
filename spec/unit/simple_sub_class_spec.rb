@@ -14,7 +14,6 @@ describe 'Simple sub-class' do
     it 'should contain tasks with klass SimpleSubClass, not SimpleClass' do
       sub.serially.tasks[:enrich].klass.should == SimpleSubClass
     end
-
     it 'should contain tasks with identical to parent name, options, and run_block' do
       sub.serially.tasks.values.first.name.should == Serially::TaskManager[SimpleClass].tasks.values.first.name
       sub.serially.tasks[:enrich].options.should == Serially::TaskManager[SimpleClass].tasks[:enrich].options

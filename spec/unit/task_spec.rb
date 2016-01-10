@@ -21,9 +21,10 @@ describe 'Serially::Task' do
   context '#run!' do
     context 'using instance method' do
       it 'should return true and message string when task returns true and provides message string' do
-        status, msg = simple.serially.tasks[:enrich].run!
+        status, msg, result_obj = simple.serially.tasks[:enrich].run!
         status.should == true
         msg.should == 'Enriched just fine'
+        result_obj.should be_blank
       end
       it 'should return true and empty message string when task returns some value other than null or false' do
         status, msg = simple.serially.tasks[:validate].run!
@@ -31,14 +32,16 @@ describe 'Serially::Task' do
         msg.should == ''
       end
       it 'should return false and empty message string when task returns false' do
-        status, msg = simple.serially.tasks[:refund].run!
+        status, msg, result_obj = simple.serially.tasks[:refund].run!
         status.should == false
-        msg.should == ''
+        msg.should == 'failed'
+        result_obj.should == {reason: 'external api', date: Date.today}
       end
       it 'should return false and a message with exception, if task raises exception' do
-        status, msg = simple.serially.tasks[:complete].run!
+        status, msg, result_obj = simple.serially.tasks[:complete].run!
         status.should == false
         msg.should include("Serially: task 'complete' raised exception: Unexpected failure")
+        result_obj.should be_kind_of(RuntimeError)
       end
     end
 

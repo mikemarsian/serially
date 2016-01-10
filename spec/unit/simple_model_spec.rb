@@ -14,11 +14,9 @@ describe 'Simple ActiveRecord model that includes Serially' do
       simple.should respond_to(:serially)
       simple.serially.should respond_to(:start!)
     end
-
     it 'should contains all the tasks' do
       simple.serially.tasks.keys.should == [:model_step1, :model_step2, :model_step3]
     end
-
     context '#start!' do
       it 'should enqueue job with correct params' do
         simple.serially.start!
@@ -47,11 +45,10 @@ describe 'Simple ActiveRecord model that includes Serially' do
     end
   end
 
-  context 'worker' do
+  context 'job' do
     before(:each) do
       Serially::TaskRun.delete_all
     end
-
     context 'valid params' do
       it 'should write all finished task runs to DB' do
         item = SimpleModel.create(title: 'IamItem')
@@ -79,7 +76,6 @@ describe 'Simple ActiveRecord model that includes Serially' do
         step3.result_message.should == 'step 3 failed'
       end
     end
-
     context 'invalid params' do
       context 'when instance_id is invalid' do
         let(:invalid_id) { 888 }

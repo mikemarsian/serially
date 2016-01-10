@@ -3,6 +3,7 @@ require 'active_record'
 module Serially
   class TaskRun < ActiveRecord::Base
     enum status: { pending: 0, started: 1, started_async: 2, finished_ok: 3, finished_error: 4 }
+    serialize :result_object
 
     self.table_name = 'serially_task_runs'
 
@@ -19,7 +20,7 @@ module Serially
       finished_ok? || finished_error?
     end
 
-    def self.write_task_run(task, item_id, success, msg)
+    def self.write_task_run(task, item_id, success, result_msg, result_obj)
       task_run = TaskRun.where(item_class: task.klass, item_id: item_id, task_name: task.name).first_or_initialize
       if task_run.finished?
         Resque.logger.warn("Serially: task '#{task.name}' for #{task.klass}/#{item_id} finished already, not saving this task run")
@@ -28,7 +29,8 @@ module Serially
         saved = task_run.tap {|t|
           t.task_order = task.task_order
           t.status = success ? TaskRun.statuses[:finished_ok] : TaskRun.statuses[:finished_error]
-          t.result_message = msg
+          t.result_message = result_msg
+          t.result_object = result_obj
           t.finished_at = DateTime.now
         }.save
         saved

@@ -7,7 +7,8 @@ class CreateSeriallyTaskRuns < ActiveRecord::Migration
       t.integer :task_order,      null: false
       t.integer  :status,         default: 0
       t.datetime :finished_at
-      t.text     :result_message
+      t.text :result_message
+      t.text :result_object
       t.timestamps null: false
     end
 

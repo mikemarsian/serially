@@ -27,7 +27,8 @@ describe 'Simple class that includes Serially' do
       observer.message(:validate).should == ''
 
       observer.status(:refund).should == false
-      observer.message(:refund).should == ''
+      observer.message(:refund).should == 'failed'
+      observer.result_object(:refund).should == {reason: 'external api', date: Date.today}
 
       result.should include("Serially: task 'refund' for SimpleClass/ finished with success: false, message: ")
     end

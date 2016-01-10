@@ -41,15 +41,15 @@ module Serially
           raise Serially::ConfigurationError.new("Serially task #{@name} in class #{@klass} doesn't have an implementation method or a block to run")
         end
         begin
-          status, msg = @run_block ? @run_block.call(instance) : instance.send(@name)
+          status, msg, result_obj = @run_block ? @run_block.call(instance) : instance.send(@name)
         rescue StandardError => exc
-          return [false, "Serially: task '#{@name}' raised exception: #{exc.message}"]
+          return [false, "Serially: task '#{@name}' raised exception: #{exc.message}", exc]
         end
       else
         return [false, "Serially: instance couldn't be created, task '#{@name}'' not started"]
       end
       # returns true (unless status == nil/false/[]) and '' (unless msg is a not empty string)
-      [status.present?, msg.to_s]
+      [status.present?, msg.to_s, result_obj]
     end
 
   end

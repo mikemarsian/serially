@@ -27,7 +27,8 @@ class SimpleClass
 
   def refund
     print_me("Refunding failed")
-    false
+    result_obj = {reason: 'external api', date: Date.today}
+    [false, 'failed', result_obj]
   end
 
   def complete
