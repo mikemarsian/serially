@@ -2,6 +2,7 @@
 
 [![Build Status](https://circleci.com/gh/mikemarsian/serially.svg?&style=shield&circle-token=93a8f2925ebdd64032108118ef6e17eb3848d767)](https://circleci.com/gh/mikemarsian/serially)
 [![Code Climate](https://codeclimate.com/github/mikemarsian/serially/badges/gpa.svg)](https://codeclimate.com/github/mikemarsian/serially)
+[![Gem Version](https://badge.fury.io/rb/serially.svg)](https://badge.fury.io/rb/serially)
 
 Have you ever had a class whose instances required a series of background tasks to run serially, strictly one after another? Than Serially is for you.
 Declare the tasks using a simple DSL in the order you want them to to run. The tasks for each instance will run inside a separate Resque job, in a queue you specify. The next task will run only if the previous one has finished successfully. All task runs are written to DB and can be inspected.
