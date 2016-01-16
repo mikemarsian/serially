@@ -34,6 +34,10 @@ module Serially
     def add_task(task_name, task_options, &block)
       raise Serially::ConfigurationError.new("Task #{task_name} is already defined in class #{@klass}") if @tasks.include?(task_name)
       raise Serially::ConfigurationError.new("Task name #{task_name} defined in class #{@klass} is not a symbol") if !task_name.is_a?(Symbol)
+
+      invalid_options = Serially::TaskOptions.validate(task_options)
+      raise Serially::ConfigurationError.new("Task #{task_name} received the following invalid options: #{invalid_options}") if invalid_options.present?
+
       @tasks[task_name] = Serially::Task.new(task_name, next_task_order!, task_options, self, &block)
     end
 

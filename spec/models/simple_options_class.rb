@@ -13,4 +13,13 @@ class SimpleOptionsClass
       true
     end
   end
+
+  attr_accessor :simple_key
+  def initialize(key)
+    @simple_key = key
+  end
+
+  def instance_id
+    @simple_key
+  end
 end

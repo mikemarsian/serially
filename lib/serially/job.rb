@@ -9,7 +9,7 @@ module Serially
     extend Resque::Plugins::LonelyJob
 
     def self.queue
-      Serially::Options.default_queue
+      Serially::GlobalOptions.default_queue
     end
 
     # this ensures that for item_class=Invoice, and item_id=34500, only one job will run at a time

@@ -1,7 +1,7 @@
 require 'spec_helper'
 
 describe 'Sub-class that includes Serially' do
-  let(:sub) { SubClassWithTasks.new }
+  let(:sub) { SubClassWithTasks.new('IamKey')  }
   let(:observer) { TaskRunObserver.new }
   let(:runner) { Serially::TaskRunner.new(observer) }
 
@@ -13,7 +13,7 @@ describe 'Sub-class that includes Serially' do
 
   context 'task runner' do
     it 'should run all tasks till the first task that returns false' do
-      result = runner.run!(SubClassWithTasks)
+      result = runner.run!(SubClassWithTasks, 'IamKey')
       observer.status(:zip).should == true
       observer.message(:zip).should == 'ok'
 
@@ -22,7 +22,7 @@ describe 'Sub-class that includes Serially' do
 
       observer.status(:acknowledge).should be_blank
 
-      result.should include("Serially: task 'send' for SubClassWithTasks/ finished with success: false, message: ")
+      result.should include("Serially: task 'send' for SubClassWithTasks/IamKey finished with success: false, message: ")
     end
   end
 end

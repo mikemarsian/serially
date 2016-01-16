@@ -9,6 +9,7 @@ class CreateSeriallyTaskRuns < ActiveRecord::Migration
       t.datetime :finished_at
       t.text :result_message
       t.text :result_object
+      t.boolean :error_handled, default: false
       t.timestamps null: false
     end
 

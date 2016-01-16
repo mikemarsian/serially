@@ -52,7 +52,8 @@ describe 'Invalid definitions' do
             task :do_this
           end
         end
-        WithoutMethod.new.serially.tasks[:do_this].run!
+        instance = WithoutMethod.new
+        instance.serially.tasks[:do_this].run!(instance)
       }.should raise_error(Serially::ConfigurationError)
     end
   end
@@ -97,6 +98,33 @@ describe 'Invalid definitions' do
             end
           end
         end
+      }.should raise_error(Serially::ConfigurationError)
+    end
+  end
+
+  context 'on_error callback' do
+    before(:all) { Resque.inline = true }
+    after(:all) { Resque.inline = false }
+    it 'should raise ConfigurationError if declared callback does not exist' do
+      lambda {
+        class InvalidCallbacks
+          include Serially
+
+          serially do
+            task :do_something, on_error: :handle_error do |instance|
+              false
+            end
+          end
+
+          def initialize(key1)
+            @key1 = key1
+          end
+          attr_accessor :key1
+          def instance_id
+            @key1
+          end
+        end
+        InvalidCallbacks.new(:key11).serially.start!
       }.should raise_error(Serially::ConfigurationError)
     end
   end

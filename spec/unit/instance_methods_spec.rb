@@ -10,7 +10,8 @@ describe 'Instance methods' do
   context '#instance_id' do
     context 'no override provided' do
       it 'returns object_id for plain ruby class' do
-        simple.instance_id.should == simple.object_id
+        lambda{ simple.instance_id }.should raise_error(Serially::ArgumentError)
+        lambda{ SimpleClass.new.serially.start! }.should raise_error(Serially::ArgumentError)
       end
       it 'returns id for ActiveRecord model' do
         simple_model.instance_id.should == simple_model.id
@@ -32,11 +33,11 @@ describe 'Instance methods' do
 
     context '#start!' do
       it 'should enqueue Serially::Job' do
-        simple.serially.start!
+        simple_model.serially.start!
         resque_jobs = Resque.peek(Serially::Job.queue, 0, 10)
         resque_jobs.count.should == 1
         resque_jobs.first['class'].should == Serially::Job.to_s
-        resque_jobs.first['args'].should == [SimpleClass.to_s, simple.object_id]
+        resque_jobs.first['args'].should == [SimpleModel.to_s, simple_model.id]
       end
 
     end

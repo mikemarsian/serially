@@ -20,7 +20,7 @@ module Serially
       finished_ok? || finished_error?
     end
 
-    def self.write_task_run(task, item_id, success, result_msg, result_obj)
+    def self.write_task_run(task, item_id, success, result_msg, result_obj, error_handled)
       task_run = TaskRun.where(item_class: task.klass, item_id: item_id, task_name: task.name).first_or_initialize
       if task_run.finished?
         Resque.logger.warn("Serially: task '#{task.name}' for #{task.klass}/#{item_id} finished already, not saving this task run")
@@ -31,6 +31,7 @@ module Serially
           t.status = success ? TaskRun.statuses[:finished_ok] : TaskRun.statuses[:finished_error]
           t.result_message = result_msg
           t.result_object = result_obj
+          t.error_handled = error_handled
           t.finished_at = DateTime.now
         }.save
         saved

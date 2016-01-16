@@ -143,7 +143,9 @@ end
 ```
 Jobs for different instances of Post will all be scheduled in 'posts' queue, without any interference to each other.
 
-### Blocks
+### Callbacks
+
+#### Blocks
 In addition to instance methods, you can pass a block as a task callback, and you can mix both syntaxes in your class:
 
 ```ruby
@@ -153,18 +155,49 @@ class Post < ActiveRecord::Base
      serially do
         task :draft
         task :review do |post|
-            puts "Reviewing #{post.id}"
+            # finished successfully
             true
         end
         task :publish do |post|
-            puts "Publishing #{post.id}"
-            true
+            # block can return message and result object in addition to boolean status, just like the instance method
+            [true, 'published ok', {author: 'Mike}]
         end
      end
 
      def draft
-        puts "Drafting #{self.id}"
+        # using instance methods makes sense when your callback is more than 1 or 2 lines of code
         [false, 'drafting failed']
+     end
+end
+```
+#### On Error Callback
+You can provide an error handling callback for each task, which will be called if a task fails to finish successfully. If the error handling
+callback returns `true`, the execution will continue to next task, despite the failure of the previous one, otherwise tasks
+execution will stop as expected.
+
+```ruby
+class Post < ActiveRecord::Base
+     include Serially
+
+     serially do
+        task :draft, on_error: handle_draft_error
+        ...
+     end
+
+     def draft
+        # something happened here that caused draft to fail
+        result_obj = {author: 'Mike'}
+        [false, 'drafting failed', result_obj]
+     end
+
+     def handle_draft_error(msg, result_obj)
+        if result_obj[:author] == 'Mike'
+            # let's continue to next task
+            true
+        else
+            # can't continue executing tasks like nothing happened, have to stop
+            false
+        end
      end
 end
 ```

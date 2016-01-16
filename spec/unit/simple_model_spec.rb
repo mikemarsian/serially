@@ -79,15 +79,8 @@ describe 'Simple ActiveRecord model that includes Serially' do
     context 'invalid params' do
       context 'when instance_id is invalid' do
         let(:invalid_id) { 888 }
-        it 'should not write to db' do
-          Serially::Job.perform(SimpleModel.to_s, invalid_id)
-
-          # since instance can't be created, only first task_run should be written to DB
-          Serially::TaskRun.count.should == 1
-          Serially::TaskRun.first.task_order.should == 0
-          Serially::TaskRun.first.should be_finished_error
-          Serially::TaskRun.first.finished_at.should_not be_blank
-          Serially::TaskRun.first.result_message.should == "Serially: instance couldn't be created, task 'model_step1'' not started"
+        it 'should raise InvalidArgument exception' do
+          lambda { Serially::Job.perform(SimpleModel.to_s, invalid_id) }.should raise_error(Serially::ArgumentError)
         end
       end
     end

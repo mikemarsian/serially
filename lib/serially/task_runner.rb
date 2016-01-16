@@ -10,6 +10,7 @@ module Serially
 
     def run!(item_class, item_id = nil)
       last_run = []
+      instance = item_id.blank? ? item_class.send(:create_instance) : item_class.send(:create_instance, item_id)
       Serially::TaskManager[item_class].each do |task|
         # if task.async?
         #   started_async_task = SerialTasksManager.begin_task(task)
@@ -18,14 +19,15 @@ module Serially
         # else
         #started_async_task = false
 
-        success, msg, result_obj = task.run!(item_id)
+        success, msg, result_obj = task.run!(instance)
+        error_handled = task.on_error!(instance, msg, result_obj) if !success
         last_run = [task, success, msg, result_obj]
 
         # write result log to DB
         changed
-        notify_observers(task, item_id, success, msg, result_obj)
-        # if task didn't complete successfully, exit
-        break if !success
+        notify_observers(task, instance, success, msg, result_obj, error_handled)
+        # if task didn't complete successfully, and error handler didn't return true, exit
+        break if !success && !error_handled
       end
       # if started_async_task
       #   msg = "SerialTasksManager: started async task for #{item_class}/#{item_id}. Worker is exiting..."

@@ -1,5 +1,6 @@
 require "serially/version"
 require 'serially/errors'
+require 'serially/options'
 require 'serially/serially'
 require 'serially/base'
 require 'serially/instance_base'

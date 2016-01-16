@@ -36,8 +36,7 @@ describe 'Class methods' do
         end
 
         it 'when passing incorrect params, should return nil' do
-          instance = SimpleModel.create_instance(id: simple_model.id, title: 'Kuku')
-          instance.should be_blank
+          lambda{ SimpleModel.create_instance(id: simple_model.id, title: 'Kuku') }.should raise_error(Serially::ArgumentError)
         end
 
         it 'when passing invalid params, should raise ArgumentError' do
