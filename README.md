@@ -179,7 +179,7 @@ class Post < ActiveRecord::Base
      include Serially
 
      serially do
-        task :draft, on_error: handle_draft_error
+        task :draft, on_error: :handle_draft_error
         ...
      end
 
