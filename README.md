@@ -3,10 +3,9 @@
 [![Build Status](https://circleci.com/gh/mikemarsian/serially.svg?&style=shield&circle-token=93a8f2925ebdd64032108118ef6e17eb3848d767)](https://circleci.com/gh/mikemarsian/serially)
 [![Code Climate](https://codeclimate.com/github/mikemarsian/serially/badges/gpa.svg)](https://codeclimate.com/github/mikemarsian/serially)
 
-Have you ever had a class that required a series of background tasks to run serially, strictly one after another? Then Serially is for you.
-Declare the tasks using a simple DSL in the order you want them to to run. Serially will wrap them in a single job, and schedule it using Resque
-in a queue you specify (or a default one). The next task will run only if the previous one has finished successfully. All task run results are written to DB and can be inspected (that is if
-your class is an ActiveRecord model).
+Have you ever had a class whose instances required a series of background tasks to run serially, strictly one after another? Than Serially is for you.
+Declare the tasks using a simple DSL in the order you want them to to run. The tasks for each instance will run inside a separate Resque job, in a queue you specify. The next task will run only if the previous one has finished successfully. All task runs are written to DB and can be inspected.
+
 
 Check [this demo app][1] to see how Serially may be used in a Rails app.
 
@@ -170,7 +169,7 @@ class Post < ActiveRecord::Base
      end
 end
 ```
-#### On Error Callback
+#### On Error Callbacks
 You can provide an error handling callback for each task, which will be called if a task fails to finish successfully. If the error handling
 callback returns `true`, the execution will continue to next task, despite the failure of the previous one, otherwise tasks
 execution will stop as expected.

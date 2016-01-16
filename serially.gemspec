@@ -36,8 +36,7 @@ Gem::Specification.new do |spec|
 
   spec.description   = <<desc
 Have you ever had a class whose instances required a series of background tasks to run serially, strictly one after another? Than Serially is for you.
-Declare the tasks using a simple DSL in the order you want them to to run. The tasks for each instance will run inside a separate Resque job, in a queue you specify. The next task will run only if the previous one has finished successfully. All task runs are written to DB and can be inspected (if
-your class is an ActiveRecord object).
+Declare the tasks using a simple DSL in the order you want them to to run. The tasks for each instance will run inside a separate Resque job, in a queue you specify. The next task will run only if the previous one has finished successfully. All task runs are written to DB and can be inspected.
 desc
 
 end
