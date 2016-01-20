@@ -32,8 +32,7 @@ module Serially
       name.to_s
     end
 
-    # <i>args</i> - arguments needed to create an instance of your class. If you don't provide custom implementation for create_instance,
-    # pass instance_id or hash of arguments,
+    # <i>instance</i> - instance on which the task callback should be run
     def run!(instance)
       if instance
         if !@run_block && !instance.respond_to?(@name)
@@ -51,7 +50,10 @@ module Serially
       # if task doesn't return it
       [status.present?, msg.to_s, result_obj]
     end
-
+    
+    # <i>instance</i> - instance on which the error handler should be run
+    # <i>result_msg</i> - result message string, returned by the task callback. Can be nil, if no string was returned by the task
+    # <i>result_obj</i> - result object, returned by the task callback. Can be nil, if no object was returned by the task
     def on_error!(instance, result_msg, result_obj)
       if options[:on_error]
         if !klass.method_defined?(options[:on_error])
