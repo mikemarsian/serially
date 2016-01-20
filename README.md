@@ -74,7 +74,7 @@ class Post < ActiveRecord::Base
 ```
 ### Schedule for a Single Instance
 
-After creating an instance of a Post, you can run `post.serially.start!` to schedule your Post tasks to run serially. They will run one after the other in the scope of the same `Serially::Job`
+After creating an instance of a Post, you can call `post.serially.start!` to schedule your Post tasks to run serially. They will run one after the other in the scope of the same `Serially::Job`
 in the default `serially` queue.
 An example run:
 ```ruby
@@ -105,7 +105,7 @@ Post.start_batch!([post1.id, post2.id, post3.id])
 * If a task returns _false_, the execution stops and the next tasks in the chain won't be performed for current instance
 
 ### Inspection
-The easiest way to inspect the task run results, is using `serially.task_runs` instance method (which is supported for ActiveRecord classes only):
+The easiest way to inspect the task run results, is using `serially.task_runs` instance method:
 ```ruby
 post1.serially.task_runs # => returns ActiveRecord::Relation of all task runs for post1, ordered by their order of running
 post1.serially.task_runs.finished # => returns Relation of all tasks runs that finished (successfully or not) for post1
@@ -131,7 +131,7 @@ for the previous task runs example, will show something like this:
 Notice that the _promote_ task didn't run at all, since the _publish_ task that ran before it returned _false_ for both posts.
 
 ### Configuration
-You can specify in which Resque queue the task-containing `Serially::Job` will be scheduled:
+You can specify in which Resque queue the `Serially::Job` for each instance of your class will be scheduled:
 ```ruby
 class Post
      include Serially
@@ -141,7 +141,7 @@ class Post
      end
 end
 ```
-Jobs for different instances of Post will all be scheduled in 'posts' queue, without any interference to each other.
+In this example, jobs for different instances of Post will all be scheduled in 'posts' queue, without any interference to each other.
 
 ### Callbacks
 
@@ -172,8 +172,8 @@ end
 ```
 #### On Error Callbacks
 You can provide an error handling callback for each task, which will be called if a task fails to finish successfully. If the error handling
-callback returns `true`, the execution will continue to next task, despite the failure of the previous one, otherwise tasks
-execution will stop as expected.
+callback returns _true_, the execution will continue to next task, despite the failure of the previous task. Otherwise tasks
+execution will stop.
 
 ```ruby
 class Post < ActiveRecord::Base
@@ -203,8 +203,7 @@ end
 ```
 
 ## Customize Plain Ruby Class Instantiation
-Before the first task runs, Serially creates an instance of your class, on which your task callbacks are then called. By default, instances of plain ruby classes
-are created using simple `new`. If your class has a custom `initialize` method that you want to be called when creating instance of your class, it's easy to achieve. All you need to do is to implement
+Before the first task runs, Serially creates an instance of your class, on which your task callbacks are then called. If your plain Ruby class has a custom `initialize` method that you want to be called when creating instance of your class, it's easy to achieve. All you need to do is to implement
 `instance_id` method that can return any number of arguments, which will be passed as-is to your `initialize`.
 
 ```ruby
@@ -250,7 +249,7 @@ end
 ```
 
 ### ActiveRecord Model Instantiation
-For ActiveRecord objects, `instance_id` will return the DB id as expected, and overwriting this method isn't recommended.
+For instances of ActiveRecord models, `instance_id` will return the DB id as expected. Overwriting this method isn't recommended.
 
 
 ## Development
